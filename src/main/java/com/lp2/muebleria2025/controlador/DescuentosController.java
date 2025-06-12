@@ -33,6 +33,7 @@ import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
 
 /**
  *
@@ -260,7 +261,7 @@ public class DescuentosController implements ActionListener , KeyListener {
         seleccionar.setId(-1); // ID especial para distinguir
         seleccionar.setNombre("Seleccionar Producto");
         model.addElement(seleccionar);
-        
+        AutoCompleteDecorator.decorate(cbo);
         List<Producto> lista = crudPro.listar("");
         for (int i = 0; i < lista.size(); i++) {
             Producto productoo = lista.get(i);

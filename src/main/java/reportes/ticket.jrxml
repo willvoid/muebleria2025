@@ -13,7 +13,7 @@
             ELSE 0
         END AS descuento, c.nombre, u.nombre as user_nombre, u.apellido as user_apellido
  from detalle_ventas dv
-inner join producto p on dv.producto_cod = p.codigo
+inner join producto p on dv.idproducto = p.id
 inner join iva i on p.idiva = i.id
 inner join ventas v on dv.venta_id=v.idventas
 inner join cliente c on c.id=v.idcliente
@@ -77,6 +77,11 @@ inner join usuario u on v.idusuario=u.id
 		<property name="com.jaspersoft.studio.field.label" value="producto_cod"/>
 		<property name="com.jaspersoft.studio.field.tree.path" value="detalle_ventas"/>
 	</field>
+	<field name="idproducto" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.name" value="idproducto"/>
+		<property name="com.jaspersoft.studio.field.label" value="idproducto"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="detalle_ventas"/>
+	</field>
 	<field name="valor" class="java.lang.Integer">
 		<property name="com.jaspersoft.studio.field.name" value="valor"/>
 		<property name="com.jaspersoft.studio.field.label" value="valor"/>
@@ -121,7 +126,7 @@ inner join usuario u on v.idusuario=u.id
 			<staticText>
 				<reportElement x="-1" y="7" width="220" height="13" uuid="88d475e3-9e59-4d20-a3df-bff26ec20c05"/>
 				<textElement textAlignment="Center"/>
-				<text><![CDATA[Nigga Shop SRL]]></text>
+				<text><![CDATA[VG MUEBLERIA]]></text>
 			</staticText>
 			<staticText>
 				<reportElement x="35" y="20" width="144" height="20" uuid="a583791b-9537-44e0-a28f-2bae7d877875"/>
@@ -219,7 +224,7 @@ inner join usuario u on v.idusuario=u.id
 				<textElement>
 					<font size="5"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$F{producto_cod}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{idproducto}]]></textFieldExpression>
 			</textField>
 			<textField>
 				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToBandHeight" x="20" y="0" width="198" height="10" uuid="b075d51e-94ba-4139-9c27-c9b708a1a970">

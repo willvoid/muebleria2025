@@ -28,7 +28,7 @@ public class DetalleVentaTablaModel extends AbstractTableModel {
     public Object getValueAt(int fila, int columna) {
         DetalleVentas detalle_ventas = lista.get(fila);
         switch (columna) {
-            case 0: return detalle_ventas.getCodigo();
+            case 0: return detalle_ventas.getIdproducto();
             case 1: return detalle_ventas.getProducto();
             case 2: return detalle_ventas.getCantidad();
             case 3: return detalle_ventas.getPrecio();

@@ -26,6 +26,9 @@ public class UsuarioCrudImpl implements Crud<Usuario>{
     PreparedStatement sentencia;
     public static Integer idusuario=null;
     public static String usuario_actual=null;
+    public static String rol_usuario=null;
+    public static String nombre=null;
+    public static String apellido=null;
     //lo primero que se ejecuta cuando se crea un objeto
     public UsuarioCrudImpl() {
         Conexion conectar = new Conexion();
@@ -84,7 +87,7 @@ public class UsuarioCrudImpl implements Crud<Usuario>{
      
     public void ObtenerUser(Usuario obj){
         try {
-            String sql = "SELECT id,nombre,apellido,usuario from usuario where usuario = ? and clave = ?";
+            String sql = "SELECT id,nombre,apellido,usuario,rol from usuario where usuario = ? and clave = ?";
             sentencia = conec.prepareStatement(sql);
             sentencia.setString(1, obj.getUsuario());
             sentencia.setString(2, obj.getClave());
@@ -95,9 +98,13 @@ public class UsuarioCrudImpl implements Crud<Usuario>{
                 obj.setNombre(rs.getString("nombre"));
                 obj.setApellido(rs.getString("apellido"));
                 obj.setUsuario(rs.getString("usuario"));
+                obj.setRol(rs.getString("rol"));
                 
                 idusuario = obj.getId();
                 usuario_actual = obj.getUsuario();
+                rol_usuario = obj.getRol();
+                nombre = obj.getNombre();
+                apellido = obj.getApellido();
             }
             
         } catch (SQLException e) {
@@ -148,7 +155,7 @@ public class UsuarioCrudImpl implements Crud<Usuario>{
         System.out.println("texto buscado " + textoBuscado);
         ArrayList<Usuario> lista = new ArrayList<>();
         try {
-            String sql = "select * from usuario where nombre ||' '|| usuario ilike ? order by nombre asc";
+            String sql = "select * from usuario where usuario != 'william' and nombre ilike ? order by nombre asc";
             sentencia = conec.prepareStatement(sql);
             sentencia.setString(1, "%" + textoBuscado + "%");
             ResultSet rs = sentencia.executeQuery();

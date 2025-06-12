@@ -19,6 +19,7 @@ import com.lp2.muebleria2025.modelo.dao.ClienteCrudImpl;
 import com.lp2.muebleria2025.modelo.dao.DescuentosCrudImpl;
 import com.lp2.muebleria2025.controlador.DescuentosController;
 import com.lp2.muebleria2025.modelo.DetalleVentas;
+import com.lp2.muebleria2025.modelo.dao.Conexion;
 import com.lp2.muebleria2025.modelo.dao.DetalleVentasCrudImpl;
 import com.lp2.muebleria2025.modelo.dao.IvaCrudImpl;
 import com.lp2.muebleria2025.modelo.dao.MarcaCrudImpl;
@@ -26,21 +27,53 @@ import com.lp2.muebleria2025.modelo.dao.ProductoCrudImpl;
 import com.lp2.muebleria2025.modelo.dao.ProveedorCrudImpl;
 import com.lp2.muebleria2025.modelo.dao.UsuarioCrudImpl;
 import com.lp2.muebleria2025.modelo.dao.VentasCrudImpl;
+import java.sql.Connection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
+import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JasperCompileManager;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.JasperReport;
+import net.sf.jasperreports.view.JasperViewer;
 
 /**
  *
  * @author HP
  */
 public class VentanaPrincipal extends javax.swing.JFrame {
-
+    Connection conec;
     /**
      * Creates new form VentanaPrincipal
      */
     public VentanaPrincipal() {
         initComponents();
-        this.setTitle("SISTEMA DE VENTAS v.1.0       Usuario activo: "+UsuarioCrudImpl.usuario_actual);
+        this.setTitle("SISTEMA DE VENTAS v.1.0  Usuario activo: "+UsuarioCrudImpl.nombre + " " + UsuarioCrudImpl.apellido);
+        if (!"ADMINISTRADOR".equals(UsuarioCrudImpl.rol_usuario) && !"GERENTE".equals(UsuarioCrudImpl.rol_usuario)){
+            this.usuario_jmenu.setEnabled(false);
+            this.producto_jMenu.setEnabled(false);
+            this.proveedores_jMenu.setEnabled(false);
+            //this.Clientes_jMenu.setEnabled(false);
+            this.reportes_jMenu.setEnabled(false);
+        }else{
+           this.usuario_jmenu.setEnabled(true);
+           this.producto_jMenu.setEnabled(true);
+           this.proveedores_jMenu.setEnabled(true);
+            //this.Clientes_jMenu.setEnabled(false);
+            this.reportes_jMenu.setEnabled(true);
+        }
+        this.jMenu_categoria.setVisible(false);
+        this.jMenu_categoria.setEnabled(false);
+        
+        this.jMenu_iva.setVisible(false);
+        this.jMenu_iva.setEnabled(false);
+        System.out.println(UsuarioCrudImpl.rol_usuario);
+        Conexion conectar = new Conexion();
+        conec = conectar.conectarBD();
     }
 
     /**
@@ -60,24 +93,28 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         jMenuItem13 = new javax.swing.JMenuItem();
         jToggleButtonTema = new javax.swing.JToggleButton();
         jMenuBar1 = new javax.swing.JMenuBar();
-        jMenu1 = new javax.swing.JMenu();
+        usuario_jmenu = new javax.swing.JMenu();
         jMenuItem1 = new javax.swing.JMenuItem();
         jMenuItem10 = new javax.swing.JMenuItem();
-        jMenu2 = new javax.swing.JMenu();
+        Clientes_jMenu = new javax.swing.JMenu();
         jMenuItem2 = new javax.swing.JMenuItem();
-        jMenu4 = new javax.swing.JMenu();
+        proveedores_jMenu = new javax.swing.JMenu();
         jMenuItem3 = new javax.swing.JMenuItem();
-        jMenu3 = new javax.swing.JMenu();
+        producto_jMenu = new javax.swing.JMenu();
         jMenuItem7 = new javax.swing.JMenuItem();
-        jMenuItem8 = new javax.swing.JMenuItem();
-        jMenuItem9 = new javax.swing.JMenuItem();
+        jMenu_iva = new javax.swing.JMenuItem();
+        jMenu_categoria = new javax.swing.JMenuItem();
         jMenuItem17 = new javax.swing.JMenuItem();
         jMenu5 = new javax.swing.JMenu();
         jMenuItem14 = new javax.swing.JMenuItem();
         jMenuItem15 = new javax.swing.JMenuItem();
-        jMenu6 = new javax.swing.JMenu();
+        jMenu8 = new javax.swing.JMenu();
+        jMenuItem18 = new javax.swing.JMenuItem();
+        reportes_jMenu = new javax.swing.JMenu();
         jMenuItem16 = new javax.swing.JMenuItem();
+        jMenuItem8 = new javax.swing.JMenuItem();
         jMenu7 = new javax.swing.JMenu();
+        jMenuItem19 = new javax.swing.JMenuItem();
 
         jMenuItem4.setText("jMenuItem4");
 
@@ -104,11 +141,11 @@ public class VentanaPrincipal extends javax.swing.JFrame {
             }
         });
 
-        jMenu1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/usuario.png"))); // NOI18N
-        jMenu1.setText("Usuario");
-        jMenu1.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        jMenu1.setMinimumSize(new java.awt.Dimension(130, 50));
-        jMenu1.setPreferredSize(new java.awt.Dimension(110, 50));
+        usuario_jmenu.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/usuario.png"))); // NOI18N
+        usuario_jmenu.setText("Usuario");
+        usuario_jmenu.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        usuario_jmenu.setMinimumSize(new java.awt.Dimension(130, 50));
+        usuario_jmenu.setPreferredSize(new java.awt.Dimension(110, 50));
 
         jMenuItem1.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_N, java.awt.event.InputEvent.CTRL_DOWN_MASK));
         jMenuItem1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/nuevo-cliente.png"))); // NOI18N
@@ -118,7 +155,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
                 jMenuItem1ActionPerformed(evt);
             }
         });
-        jMenu1.add(jMenuItem1);
+        usuario_jmenu.add(jMenuItem1);
 
         jMenuItem10.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_U, java.awt.event.InputEvent.CTRL_DOWN_MASK));
         jMenuItem10.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/anadir.png"))); // NOI18N
@@ -128,48 +165,50 @@ public class VentanaPrincipal extends javax.swing.JFrame {
                 jMenuItem10ActionPerformed(evt);
             }
         });
-        jMenu1.add(jMenuItem10);
+        usuario_jmenu.add(jMenuItem10);
 
-        jMenuBar1.add(jMenu1);
+        jMenuBar1.add(usuario_jmenu);
 
-        jMenu2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/cliente.png"))); // NOI18N
-        jMenu2.setText("Clientes");
-        jMenu2.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        jMenu2.setMinimumSize(new java.awt.Dimension(130, 50));
-        jMenu2.setPreferredSize(new java.awt.Dimension(110, 50));
+        Clientes_jMenu.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/cliente.png"))); // NOI18N
+        Clientes_jMenu.setText("Clientes");
+        Clientes_jMenu.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        Clientes_jMenu.setMinimumSize(new java.awt.Dimension(130, 50));
+        Clientes_jMenu.setPreferredSize(new java.awt.Dimension(110, 50));
 
-        jMenuItem2.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_K, java.awt.event.InputEvent.CTRL_DOWN_MASK));
+        jMenuItem2.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_C, java.awt.event.InputEvent.SHIFT_DOWN_MASK));
+        jMenuItem2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/nuevo-producto.png"))); // NOI18N
         jMenuItem2.setText("Administrar Clientes");
         jMenuItem2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jMenuItem2ActionPerformed(evt);
             }
         });
-        jMenu2.add(jMenuItem2);
+        Clientes_jMenu.add(jMenuItem2);
 
-        jMenuBar1.add(jMenu2);
+        jMenuBar1.add(Clientes_jMenu);
 
-        jMenu4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/cliente.png"))); // NOI18N
-        jMenu4.setText("Proveedores");
-        jMenu4.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        jMenu4.setMinimumSize(new java.awt.Dimension(130, 50));
-        jMenu4.setPreferredSize(new java.awt.Dimension(130, 50));
+        proveedores_jMenu.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/cliente.png"))); // NOI18N
+        proveedores_jMenu.setText("Proveedores");
+        proveedores_jMenu.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        proveedores_jMenu.setMinimumSize(new java.awt.Dimension(130, 50));
+        proveedores_jMenu.setPreferredSize(new java.awt.Dimension(130, 50));
 
-        jMenuItem3.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_P, java.awt.event.InputEvent.CTRL_DOWN_MASK));
+        jMenuItem3.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_P, java.awt.event.InputEvent.SHIFT_DOWN_MASK));
+        jMenuItem3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/nuevo-producto.png"))); // NOI18N
         jMenuItem3.setText("Administrar Proveedores");
         jMenuItem3.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jMenuItem3ActionPerformed(evt);
             }
         });
-        jMenu4.add(jMenuItem3);
+        proveedores_jMenu.add(jMenuItem3);
 
-        jMenuBar1.add(jMenu4);
+        jMenuBar1.add(proveedores_jMenu);
 
-        jMenu3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/producto.png"))); // NOI18N
-        jMenu3.setText("Producto");
-        jMenu3.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        jMenu3.setPreferredSize(new java.awt.Dimension(130, 50));
+        producto_jMenu.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/producto.png"))); // NOI18N
+        producto_jMenu.setText("Producto");
+        producto_jMenu.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        producto_jMenu.setPreferredSize(new java.awt.Dimension(130, 50));
 
         jMenuItem7.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_P, java.awt.event.InputEvent.CTRL_DOWN_MASK));
         jMenuItem7.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/nuevo-producto.png"))); // NOI18N
@@ -179,27 +218,25 @@ public class VentanaPrincipal extends javax.swing.JFrame {
                 jMenuItem7ActionPerformed(evt);
             }
         });
-        jMenu3.add(jMenuItem7);
+        producto_jMenu.add(jMenuItem7);
 
-        jMenuItem8.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_I, java.awt.event.InputEvent.CTRL_DOWN_MASK));
-        jMenuItem8.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/anadir.png"))); // NOI18N
-        jMenuItem8.setText("Iva");
-        jMenuItem8.addActionListener(new java.awt.event.ActionListener() {
+        jMenu_iva.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/anadir.png"))); // NOI18N
+        jMenu_iva.setText("Iva");
+        jMenu_iva.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem8ActionPerformed(evt);
+                jMenu_ivaActionPerformed(evt);
             }
         });
-        jMenu3.add(jMenuItem8);
+        producto_jMenu.add(jMenu_iva);
 
-        jMenuItem9.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_M, java.awt.event.InputEvent.CTRL_DOWN_MASK));
-        jMenuItem9.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/categorias.png"))); // NOI18N
-        jMenuItem9.setText("Categoría");
-        jMenuItem9.addActionListener(new java.awt.event.ActionListener() {
+        jMenu_categoria.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/categorias.png"))); // NOI18N
+        jMenu_categoria.setText("Categoría");
+        jMenu_categoria.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem9ActionPerformed(evt);
+                jMenu_categoriaActionPerformed(evt);
             }
         });
-        jMenu3.add(jMenuItem9);
+        producto_jMenu.add(jMenu_categoria);
 
         jMenuItem17.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_D, java.awt.event.InputEvent.CTRL_DOWN_MASK));
         jMenuItem17.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/configuraciones.png"))); // NOI18N
@@ -209,17 +246,17 @@ public class VentanaPrincipal extends javax.swing.JFrame {
                 jMenuItem17ActionPerformed(evt);
             }
         });
-        jMenu3.add(jMenuItem17);
+        producto_jMenu.add(jMenuItem17);
 
-        jMenuBar1.add(jMenu3);
+        jMenuBar1.add(producto_jMenu);
 
-        jMenu5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/reporte1.png"))); // NOI18N
+        jMenu5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/categorias.png"))); // NOI18N
         jMenu5.setText("Facturacion");
         jMenu5.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jMenu5.setPreferredSize(new java.awt.Dimension(130, 50));
 
         jMenuItem14.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_C, java.awt.event.InputEvent.CTRL_DOWN_MASK));
-        jMenuItem14.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/reportes.png"))); // NOI18N
+        jMenuItem14.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/venta.png"))); // NOI18N
         jMenuItem14.setText("Compras");
         jMenuItem14.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -240,16 +277,50 @@ public class VentanaPrincipal extends javax.swing.JFrame {
 
         jMenuBar1.add(jMenu5);
 
-        jMenu6.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/historial1.png"))); // NOI18N
-        jMenu6.setText("Reportes");
-        jMenu6.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        jMenu6.setMinimumSize(new java.awt.Dimension(130, 50));
-        jMenu6.setPreferredSize(new java.awt.Dimension(110, 50));
+        jMenu8.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/reporte1.png"))); // NOI18N
+        jMenu8.setText("Movimientos");
+        jMenu8.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        jMenu8.setPreferredSize(new java.awt.Dimension(130, 50));
 
-        jMenuItem16.setText("Reporte de Ventas");
-        jMenu6.add(jMenuItem16);
+        jMenuItem18.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_M, java.awt.event.InputEvent.CTRL_DOWN_MASK));
+        jMenuItem18.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/historial1.png"))); // NOI18N
+        jMenuItem18.setText("Movimientos");
+        jMenuItem18.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem18ActionPerformed(evt);
+            }
+        });
+        jMenu8.add(jMenuItem18);
 
-        jMenuBar1.add(jMenu6);
+        jMenuBar1.add(jMenu8);
+
+        reportes_jMenu.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/reportes.png"))); // NOI18N
+        reportes_jMenu.setText("Reportes");
+        reportes_jMenu.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        reportes_jMenu.setMinimumSize(new java.awt.Dimension(130, 50));
+        reportes_jMenu.setPreferredSize(new java.awt.Dimension(110, 50));
+
+        jMenuItem16.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_V, java.awt.event.InputEvent.SHIFT_DOWN_MASK | java.awt.event.InputEvent.CTRL_DOWN_MASK));
+        jMenuItem16.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/carrito.png"))); // NOI18N
+        jMenuItem16.setText("Reporte de Ventas Contado");
+        jMenuItem16.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem16ActionPerformed(evt);
+            }
+        });
+        reportes_jMenu.add(jMenuItem16);
+
+        jMenuItem8.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_P, java.awt.event.InputEvent.SHIFT_DOWN_MASK | java.awt.event.InputEvent.CTRL_DOWN_MASK));
+        jMenuItem8.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/producto.png"))); // NOI18N
+        jMenuItem8.setText("Lista de Productos");
+        jMenuItem8.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem8ActionPerformed(evt);
+            }
+        });
+        reportes_jMenu.add(jMenuItem8);
+
+        jMenuBar1.add(reportes_jMenu);
 
         jMenu7.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/cerrar-sesion.png"))); // NOI18N
         jMenu7.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
@@ -259,6 +330,16 @@ public class VentanaPrincipal extends javax.swing.JFrame {
                 jMenu7ActionPerformed(evt);
             }
         });
+
+        jMenuItem19.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_ESCAPE, 0));
+        jMenuItem19.setText("Cerrar Sesión");
+        jMenuItem19.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem19ActionPerformed(evt);
+            }
+        });
+        jMenu7.add(jMenuItem19);
+
         jMenuBar1.add(jMenu7);
 
         setJMenuBar(jMenuBar1);
@@ -327,21 +408,21 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         ctrl.mostrarVentana();
     }//GEN-LAST:event_jMenuItem2ActionPerformed
 
-    private void jMenuItem9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem9ActionPerformed
+    private void jMenu_categoriaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenu_categoriaActionPerformed
         // TODO add your handling code here:
         GUIMarca marca = new GUIMarca(null, true);
         MarcaCrudImpl crud = new MarcaCrudImpl();
         MarcaController ctrl = new MarcaController(marca, crud);
         ctrl.mostrarVentana();
-    }//GEN-LAST:event_jMenuItem9ActionPerformed
+    }//GEN-LAST:event_jMenu_categoriaActionPerformed
 
-    private void jMenuItem8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem8ActionPerformed
+    private void jMenu_ivaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenu_ivaActionPerformed
         // TODO add your handling code here:
         GUIIva iva = new GUIIva(null, true);
         IvaCrudImpl crud = new IvaCrudImpl();
         IvaController ctrl = new IvaController(iva, crud);
         ctrl.mostrarVentana();
-    }//GEN-LAST:event_jMenuItem8ActionPerformed
+    }//GEN-LAST:event_jMenu_ivaActionPerformed
 
     private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
         // TODO add your handling code here:
@@ -377,15 +458,54 @@ public class VentanaPrincipal extends javax.swing.JFrame {
 
     private void jMenu7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenu7ActionPerformed
         // TODO add your handling code here:
-        int ok = JOptionPane.showConfirmDialog(this,
-                        "Realmente desea Salir del programa?", 
+    }//GEN-LAST:event_jMenu7ActionPerformed
+
+    private void jMenuItem18ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem18ActionPerformed
+        // TODO add your handling code here:
+        GUIMovimientosF movimientos = new GUIMovimientosF();
+        movimientos.setLocationRelativeTo(movimientos);
+        movimientos.setVisible(true);
+    }//GEN-LAST:event_jMenuItem18ActionPerformed
+
+    private void jMenuItem16ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem16ActionPerformed
+        // TODO add your handling code here:
+        GUIVentas_Contado_R gui = new GUIVentas_Contado_R();
+        gui.setLocationRelativeTo(gui);
+        gui.setVisible(true);
+    }//GEN-LAST:event_jMenuItem16ActionPerformed
+
+    private void jMenuItem19ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem19ActionPerformed
+        // TODO add your handling code here:
+                int ok = JOptionPane.showConfirmDialog(this,
+                        "¿Realmente desea Cerrar sesión?", 
                         "Confirmar operacion", 
                         JOptionPane.YES_NO_OPTION, 
                         JOptionPane.QUESTION_MESSAGE);
                 if (ok == 0) {
-                    System.exit(0);
+                    this.dispose();
+                    GUILogin login = new GUILogin();
+                    login.setVisible(true);
                 }
-    }//GEN-LAST:event_jMenu7ActionPerformed
+    }//GEN-LAST:event_jMenuItem19ActionPerformed
+
+    private void jMenuItem8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem8ActionPerformed
+        // TODO add your handling code here:
+             System.out.println("Generar Ticket");
+        try {
+            Map<String, Object> parameters = new HashMap<>(); 
+            JasperReport report = JasperCompileManager.compileReport(
+                        "C:\\Users\\User\\Documents\\reportes\\lista_productoss.jrxml");
+            JasperPrint print = JasperFillManager.fillReport(report, parameters, conec);
+            //JasperViewer.viewReport(print, false);
+            JasperViewer viewer = new JasperViewer(print, false);
+            viewer.setAlwaysOnTop(true); //Muestra la ventana en frente
+            viewer.setVisible(true);
+
+            
+        } catch (JRException e) {
+            Logger.getLogger(GUIVentasF.class.getName()).log(Level.SEVERE, null, e);
+        }
+    }//GEN-LAST:event_jMenuItem8ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -423,13 +543,10 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JMenu jMenu1;
-    private javax.swing.JMenu jMenu2;
-    private javax.swing.JMenu jMenu3;
-    private javax.swing.JMenu jMenu4;
+    private javax.swing.JMenu Clientes_jMenu;
     private javax.swing.JMenu jMenu5;
-    private javax.swing.JMenu jMenu6;
     private javax.swing.JMenu jMenu7;
+    private javax.swing.JMenu jMenu8;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItem10;
@@ -440,6 +557,8 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     private javax.swing.JMenuItem jMenuItem15;
     private javax.swing.JMenuItem jMenuItem16;
     private javax.swing.JMenuItem jMenuItem17;
+    private javax.swing.JMenuItem jMenuItem18;
+    private javax.swing.JMenuItem jMenuItem19;
     private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JMenuItem jMenuItem4;
@@ -447,7 +566,12 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     private javax.swing.JMenuItem jMenuItem6;
     private javax.swing.JMenuItem jMenuItem7;
     private javax.swing.JMenuItem jMenuItem8;
-    private javax.swing.JMenuItem jMenuItem9;
+    private javax.swing.JMenuItem jMenu_categoria;
+    private javax.swing.JMenuItem jMenu_iva;
     private javax.swing.JToggleButton jToggleButtonTema;
+    private javax.swing.JMenu producto_jMenu;
+    private javax.swing.JMenu proveedores_jMenu;
+    private javax.swing.JMenu reportes_jMenu;
+    private javax.swing.JMenu usuario_jmenu;
     // End of variables declaration//GEN-END:variables
 }

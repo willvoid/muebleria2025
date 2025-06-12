@@ -38,11 +38,13 @@ public class GUINuevoUsuario extends javax.swing.JDialog {
         txt_usuario = new javax.swing.JTextField();
         jLabel6 = new javax.swing.JLabel();
         cbo_rol = new javax.swing.JComboBox<>();
-        txt_contraseña = new javax.swing.JTextField();
         jLabel1 = new javax.swing.JLabel();
+        txt_password = new javax.swing.JPasswordField();
+        txt_password2 = new javax.swing.JPasswordField();
+        jLabel3 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setTitle("                                                                                                                               CLIENTES");
+        setTitle("NUEVO USUARIO");
 
         jPanel1.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.LOWERED));
 
@@ -57,6 +59,11 @@ public class GUINuevoUsuario extends javax.swing.JDialog {
         btn_guardar.setText("Guardar");
 
         txt_nombre.setDisabledTextColor(new java.awt.Color(0, 0, 0));
+        txt_nombre.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                txt_nombreKeyPressed(evt);
+            }
+        });
 
         jLabel2.setText("Nombre");
 
@@ -70,9 +77,11 @@ public class GUINuevoUsuario extends javax.swing.JDialog {
 
         jLabel6.setText("Rol");
 
-        cbo_rol.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "ADMINISTRADOR", "ESCLAVO", "EL PAPU" }));
+        cbo_rol.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "SELECCIONAR ROL", "GERENTE", "VENDEDOR", " " }));
 
         jLabel1.setText("Contraseña");
+
+        jLabel3.setText("Repetir Contraseña");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -97,13 +106,15 @@ public class GUINuevoUsuario extends javax.swing.JDialog {
                             .addComponent(jLabel6)
                             .addComponent(cbo_rol, 0, 197, Short.MAX_VALUE)
                             .addComponent(jLabel1)
-                            .addComponent(txt_contraseña))
+                            .addComponent(txt_password)
+                            .addComponent(jLabel3)
+                            .addComponent(txt_password2))
                         .addGap(110, 110, 110))))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(34, 34, 34)
+                .addContainerGap()
                 .addComponent(jLabel2)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(txt_nombre, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -118,8 +129,12 @@ public class GUINuevoUsuario extends javax.swing.JDialog {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(txt_contraseña, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(txt_password, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(38, 38, 38)
+                .addComponent(jLabel3)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(txt_password2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(37, 37, 37)
                 .addComponent(jLabel6)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(cbo_rol, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -127,7 +142,7 @@ public class GUINuevoUsuario extends javax.swing.JDialog {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btn_guardar)
                     .addComponent(btn_cancelar))
-                .addContainerGap(85, Short.MAX_VALUE))
+                .addContainerGap(51, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -141,9 +156,9 @@ public class GUINuevoUsuario extends javax.swing.JDialog {
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(64, 64, 64)
-                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(19, Short.MAX_VALUE)
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
 
@@ -153,6 +168,10 @@ public class GUINuevoUsuario extends javax.swing.JDialog {
     private void btn_cancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_cancelarActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_btn_cancelarActionPerformed
+
+    private void txt_nombreKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_nombreKeyPressed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txt_nombreKeyPressed
 
     /**
      * @param args the command line arguments
@@ -217,13 +236,15 @@ public class GUINuevoUsuario extends javax.swing.JDialog {
     public javax.swing.JComboBox<String> cbo_rol;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JPanel jPanel1;
     public javax.swing.JTextField txt_apellido;
-    public javax.swing.JTextField txt_contraseña;
     public javax.swing.JTextField txt_nombre;
+    public javax.swing.JPasswordField txt_password;
+    public javax.swing.JPasswordField txt_password2;
     public javax.swing.JTextField txt_usuario;
     // End of variables declaration//GEN-END:variables
 }

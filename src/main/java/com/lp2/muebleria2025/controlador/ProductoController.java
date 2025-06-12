@@ -69,6 +69,10 @@ public class ProductoController implements ActionListener , KeyListener {
         habilitarBoton(false);
         
         listar("");
+        
+        gui.txt_codigo.setVisible(false);
+        gui.cbo_Marca.setVisible(false);
+        gui.cbo_Iva.setVisible(false);
     }
     
     public void mostrarVentana() {
@@ -104,7 +108,6 @@ public class ProductoController implements ActionListener , KeyListener {
             gui.txt_nombre.requestFocus();
         }
         if (e.getSource() == gui.btn_editar) {
-            operacion = 'E';
             habilitarCampos(false);
             habilitarBoton(false);
             int fila = gui.tabla.getSelectedRow();
@@ -115,6 +118,7 @@ public class ProductoController implements ActionListener , KeyListener {
                         JOptionPane.YES_NO_OPTION, 
                         JOptionPane.QUESTION_MESSAGE);
                 if (ok == 0) {
+                    operacion = 'E';
                     listar("");
                     habilitarCampos(true);
                     habilitarBoton(true);
@@ -153,11 +157,11 @@ public class ProductoController implements ActionListener , KeyListener {
             Marca seleccionadoMarca = (Marca) gui.cbo_Marca.getSelectedItem();
             
             if (seleccionadoIva.getId() == -1) {
-                JOptionPane.showMessageDialog(null, "Debe seleccionar un IVA válido.");
+                JOptionPane.showMessageDialog(gui, "Debe seleccionar un IVA válido.");
                 return;
             }
             if (seleccionadoMarca.getId() == -1) {
-                JOptionPane.showMessageDialog(null, "Debe seleccionar una Marca válida.");
+                JOptionPane.showMessageDialog(gui, "Debe seleccionar una Marca válida.");
                 return;
             }
             
@@ -254,10 +258,10 @@ public class ProductoController implements ActionListener , KeyListener {
         DefaultComboBoxModel<Marca> model = new DefaultComboBoxModel();
         
         // Agregar el item "Seleccionar Marca"
-        Marca seleccionar = new Marca();
+        /*Marca seleccionar = new Marca();
         seleccionar.setId(-1); // ID especial para distinguir
         seleccionar.setNombre("Seleccionar Marca");
-        model.addElement(seleccionar);
+        model.addElement(seleccionar);*/
         
         List<Marca> lista = crudMarca.listar("");
         for (int i = 0; i < lista.size(); i++) {
@@ -271,10 +275,10 @@ public class ProductoController implements ActionListener , KeyListener {
         DefaultComboBoxModel<Iva> model = new DefaultComboBoxModel();
         
         // Agregar el item "Seleccionar Marca"
-        Iva seleccionar = new Iva();
+        /*Iva seleccionar = new Iva();
         seleccionar.setId(-1); // ID especial para distinguir
         seleccionar.setNombre("Seleccionar Iva");
-        model.addElement(seleccionar);
+        model.addElement(seleccionar);*/
         
         List<Iva> lista = crudIva.listar("");
         for (int i = 0; i < lista.size(); i++) {

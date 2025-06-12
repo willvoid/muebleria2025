@@ -13,10 +13,10 @@ import javax.swing.UIManager;
  *
  * @author HP
  */
-public class Punto_venta_2025 {
+public class muebleria2025 {
 
     public static void main(String[] args) {
-         boolean licenciaValida = LicenciaSupabase.verificarLicencia();
+         //boolean licenciaValida = LicenciaSupabase.verificarLicencia();
         try {
             UIManager.setLookAndFeel(new FlatMacLightLaf());
         } catch (Exception ex) {
@@ -27,12 +27,12 @@ public class Punto_venta_2025 {
         
         gui.setVisible(true);
         
-        if (licenciaValida) {
-            System.out.println("Licencia activa ✅");
+        /*if (licenciaValida) {
+            System.out.println("Licencia activa");
             // guardar fecha local, continuar app
         } else {
             JOptionPane.showMessageDialog(null, "Tu licencia ha expirado. Contacta con soporte.", "Licencia vencida", JOptionPane.ERROR_MESSAGE);
             System.exit(0);
-        }
+        }*/
     }
 }

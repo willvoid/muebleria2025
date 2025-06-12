@@ -25,6 +25,8 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.sql.Connection;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -63,6 +65,7 @@ public class VentasController implements ActionListener , KeyListener {
     SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
     ClienteCrudImpl crudCliente = new ClienteCrudImpl();
     DetalleVentasCrudImpl crud_dv = new DetalleVentasCrudImpl();
+    UsuarioCrudImpl crudUser = new UsuarioCrudImpl();
     
     VentasTablaModel modelo = new VentasTablaModel();
     
@@ -76,11 +79,40 @@ public class VentasController implements ActionListener , KeyListener {
         this.gui.btn_eliminar.addActionListener(this);
         this.gui.btn_generar_venta.addActionListener(this);
         //this.gui.txt_buscar.addKeyListener(this);
+        
+        gui.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                System.out.println("INTENTO DE CIERRE"); 
+                if (validarDetalle()==false) {
+                    JOptionPane.showMessageDialog(null, "Elimine todos los productos añadidos antes de cerrar");
+                    /*int confirmacion = JOptionPane.showConfirmDialog(
+                        gui,
+                        "Debe borrar todos los Productos añadidos.",
+                        "Confirmar cierre",
+                        JOptionPane.YES_NO_OPTION,
+                        JOptionPane.QUESTION_MESSAGE
+                    );*/
+
+                    /*if (confirmacion == JOptionPane.YES_OPTION) {
+                        gui.dispose();
+                        Integer idventa = Integer.valueOf(gui.txt_factura.getText());
+                        crud_dv.eliminartodo(idventa);
+                    }*/
+                }else{
+                    gui.dispose();
+                }
+            }
+        });
         llenarComboCliente(gui.cbo_cliente);
+        //llenarComboUsuario(gui.cbo_usuario);
         setFechaAct();
         operacion = 'N';
         habilitarCampos(true);
         habilitarBoton(true);
+        gui.txt_idusuario.setVisible(false);
+        gui.cbo_usuario.setVisible(false);
+        gui.lbl_nombre.setText(UsuarioCrudImpl.nombre+ " " + UsuarioCrudImpl.apellido);
         setUsuario();
         actVentaID();
         Conexion conectar = new Conexion();//Conexion a la BD
@@ -123,16 +155,23 @@ public class VentasController implements ActionListener , KeyListener {
             String valor = gui.txt_buscar.getText();
             listar(valor);
         }*/
-        if (e.getSource() == gui.btn_nuevo) {
+        /*if (e.getSource() == gui.btn_nuevo) {
             operacion = 'N';
             //limpiar();
             habilitarCampos(true);
              habilitarBoton(true);
             gui.cbo_cliente.requestFocus();
-        }
+        }*/
        
         
         if (e.getSource() == gui.btn_generar_venta) {
+            
+            Cliente seleccionadoCliente = (Cliente) gui.cbo_cliente.getSelectedItem();
+            
+            if ("Seleccionar Cliente".equals(seleccionadoCliente.getRazonSocial())) {
+                JOptionPane.showMessageDialog(gui, "Debe seleccionar un Cliente Valido.");
+                return;
+            }
             
             if (validarDetalle()==true){
                 JOptionPane.showMessageDialog(gui, "No se ha añadido ningún producto para vender");
@@ -146,20 +185,27 @@ public class VentasController implements ActionListener , KeyListener {
             }
             System.out.println("Evento click de Generar Venta");
             
-            try {
-                crud.insertar(getVentasForm());
-                generarTicket();
-
-                
-                actVentaID();
-            } catch (java.text.ParseException ex) {
-                Logger.getLogger(VentasController.class.getName()).log(Level.SEVERE, null, ex);
-                
-            }
-
-            gui.cbo_cliente.requestFocus();
-            
-            
+            int ok = JOptionPane.showConfirmDialog(gui,
+                        "¿Realmente desea Cerrar la Venta?", 
+                        "Confirmar operacion", 
+                        JOptionPane.YES_NO_OPTION, 
+                        JOptionPane.QUESTION_MESSAGE);
+                if (ok == 0) {
+                    try {
+                        crud.insertar(getVentasForm());
+                        
+                        actVentaID();
+                        
+                        generarTicket();
+                        
+                        
+                        
+                        gui.cbo_cliente.requestFocus();
+                        limpiar();
+                    } catch (java.text.ParseException ex) {
+                        Logger.getLogger(VentasController.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
             /*if (operacion == 'E') {
                 try {
                     crud.actualizar(getVentasForm());
@@ -247,6 +293,13 @@ public class VentasController implements ActionListener , KeyListener {
     private void llenarComboCliente(JComboBox cbo){
         DefaultComboBoxModel<Cliente> model = new DefaultComboBoxModel();
         List<Cliente> lista = crudCliente.listarcbo("");
+        
+        Cliente seleccionar = new Cliente();
+            seleccionar.setRut("->");//Id especial
+            seleccionar.setRazonSocial("Seleccionar Cliente");
+            //seleccionar.setApellido("Usuario");
+            model.addElement(seleccionar);
+        
         AutoCompleteDecorator.decorate(cbo);
         for (int i = 0; i < lista.size(); i++) {
             Cliente cliente = lista.get(i);
@@ -254,6 +307,14 @@ public class VentasController implements ActionListener , KeyListener {
         }
         cbo.setModel(model);
     }
+    private void limpiar(){
+        gui.txt_subtotal.setText("0");
+        gui.txt_iva.setText("0");
+        gui.txt_descuento.setText("0");
+        gui.txt_totalventas.setText("0");
+        gui.cbo_cliente.setSelectedIndex(0);
+    }
+    
     
     private boolean validarDetalle () {
         boolean vacio = false; // Si la lista no esta esta vacia: false
@@ -267,13 +328,17 @@ public class VentasController implements ActionListener , KeyListener {
     
     public void generarTicket() {
         System.out.println("Generar Ticket");
+        VentasCrudImpl dao = new VentasCrudImpl();
+        // Obtener el número actual de la secuencia
+        int numeroActual = dao.obtenerValorActualSecuencia();
+        Integer venta_id_int = numeroActual;
         try {
-            String venta_id = gui.txt_factura.getText();
-            Integer venta_id_int = Integer.valueOf(venta_id);
+            //String venta_id = gui.txt_factura.getText();
+            System.out.println(venta_id_int);
             Map<String, Object> parameters = new HashMap<>();
             parameters.put("venta_id", venta_id_int); 
             JasperReport report = JasperCompileManager.compileReport(
-                        "C:\\Users\\HP\\Documents\\NetBeansProjects\\punto_venta_2025\\src\\main\\java\\reportes\\ticket.jrxml");
+                       "C:\\Users\\User\\Documents\\reportes\\ticket.jrxml");
             JasperPrint print = JasperFillManager.fillReport(report, parameters, conec);
             //JasperViewer.viewReport(print, false);
             JasperViewer viewer = new JasperViewer(print, false);
@@ -296,9 +361,28 @@ public class VentasController implements ActionListener , KeyListener {
         VentasCrudImpl dao = new VentasCrudImpl();
         // Obtener el número actual de la secuencia
         int numeroActual = dao.obtenerValorActualSecuencia();
+        
         gui.txt_factura.setText(String.valueOf(numeroActual + 1)); // Asignarlo al JTextField
+        
     }
 
+        private void llenarComboUsuario(JComboBox cbo){
+            DefaultComboBoxModel<Usuario> model = new DefaultComboBoxModel();
+            List<Usuario> lista = crudUser.listar("");
+            Usuario seleccionar = new Usuario();
+            seleccionar.setId(0);//Id especial
+            seleccionar.setNombre("Seleccionar");
+            seleccionar.setApellido("Usuario");
+            model.addElement(seleccionar);
+            
+            AutoCompleteDecorator.decorate(cbo);
+            for (int i = 0; i < lista.size(); i++) {
+                Usuario usuario = lista.get(i);
+                model.addElement(usuario);
+            }
+            cbo.setModel(model);
+        }
+    
     @Override
     public void keyTyped(KeyEvent e) {
       

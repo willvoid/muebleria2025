@@ -8,10 +8,12 @@ import com.formdev.flatlaf.json.ParseException;
 import com.lp2.muebleria2025.modelo.Cliente;
 import com.lp2.muebleria2025.modelo.DetalleVentas;
 import com.lp2.muebleria2025.modelo.Producto;
+import com.lp2.muebleria2025.modelo.Usuario;
 import com.lp2.muebleria2025.modelo.Ventas;
 import com.lp2.muebleria2025.modelo.dao.ClienteCrudImpl;
 import com.lp2.muebleria2025.modelo.dao.ProductoCrudImpl;
 import com.lp2.muebleria2025.modelo.dao.DetalleVentasCrudImpl;
+import com.lp2.muebleria2025.modelo.dao.UsuarioCrudImpl;
 import com.lp2.muebleria2025.modelo.dao.VentasCrudImpl;
 import com.lp2.muebleria2025.modelo.tabla.DetalleVentaTablaModel;
 import com.lp2.muebleria2025.modelo.tabla.VentasTablaModel;
@@ -24,6 +26,8 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -47,6 +51,7 @@ import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.JasperReport;
 import net.sf.jasperreports.view.JasperViewer;
+import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
 
 public class DetallesVentasController implements ActionListener , KeyListener {
     
@@ -58,9 +63,12 @@ public class DetallesVentasController implements ActionListener , KeyListener {
     private int num_productos = 0;
     DetalleVentas d_ventas = new DetalleVentas();
     
+    public int IdAnt = 0;
+    public int subAnt = 0;
+    public int cantAnt = 0;
+    
     SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
     ClienteCrudImpl crudCliente = new ClienteCrudImpl();
-    
     DetalleVentaTablaModel modelo = new DetalleVentaTablaModel();
     
     public DetallesVentasController(GUIVentasF gui, DetalleVentasCrudImpl crud) {
@@ -71,6 +79,7 @@ public class DetallesVentasController implements ActionListener , KeyListener {
         this.gui.btn_nuevo.addActionListener(this);
         this.gui.btn_editar.addActionListener(this);
         this.gui.btn_eliminar.addActionListener(this);
+        
         //this.gui.txt_buscar.addKeyListener(this);
         
         
@@ -79,16 +88,27 @@ public class DetallesVentasController implements ActionListener , KeyListener {
                 JTable tabla = (JTable) e.getSource();
                 int row = tabla.rowAtPoint(e.getPoint());
                 DetalleVentaTablaModel model = (DetalleVentaTablaModel) tabla.getModel();
+                DetalleVentas detalle = model.getDetalleVentasByRow(row);
                 //Devolver el objeto seleccionado en la fila
-
-                setDetalleVentasForm(model.getDetalleVentasByRow(row));
+                
+                if (detalle != null) {
+                    setDetalleVentasForm(detalle);
+                    String idA = gui.txt_idproducto.getText();
+                    String subA = gui.txt_subtotal.getText();
+                    String cantA = gui.txt_cantidad_de_venta.getText();
+                    IdAnt = Integer.parseInt(idA);
+                    subAnt = Integer.parseInt(subA);
+                    cantAnt = Integer.parseInt(cantA);
+                } else {
+                    System.out.println("Advertencia: DetalleVentas es nulo para la fila " + row);
+                }
             }
         });
         
         gui.txt_idproducto.getDocument().addDocumentListener(new DocumentChangeListener() {
             @Override
             public void onChange() {
-                actualizarProductoPorCod();       
+                actualizarProductoPorId();       
             }
         });
         
@@ -138,6 +158,11 @@ public class DetallesVentasController implements ActionListener , KeyListener {
         operacion = 'N';
         gui.txt_precio_venta.setEnabled(false);
         gui.txt_fecha.setEnabled(false);
+        
+        gui.txt_iva.setVisible(false);
+        gui.txt_fecha.setVisible(false);
+        gui.txt_idproducto.setVisible(false);
+        
         gui.txt_stockdisponible.setEnabled(false);
         gui.txt_subtotal.setText("0");
         habilitarCampos(true);
@@ -183,7 +208,6 @@ public class DetallesVentasController implements ActionListener , KeyListener {
             gui.cbo_cliente.requestFocus();
         }
         if (e.getSource() == gui.btn_editar) {
-            operacion = 'E';
             habilitarCampos(false);
             habilitarBoton(false);
             int fila = gui.tabla.getSelectedRow();
@@ -194,15 +218,16 @@ public class DetallesVentasController implements ActionListener , KeyListener {
                         JOptionPane.YES_NO_OPTION, 
                         JOptionPane.QUESTION_MESSAGE);
                 if (ok == 0) {
-                    crud.actualizar((DetalleVentas) modelo.getDetalleVentasByRow(fila));
+                    operacion = 'E';
+                    //crud.actualizar((DetalleVentas) modelo.getDetalleVentasByRow(fila));
                     listar(num_venta);
                     habilitarCampos(true);
                     habilitarBoton(true);
+                    gui.txt_descripcion.requestFocus();
                 }
             } else {
                 JOptionPane.showMessageDialog(gui, "Debe seleccionar una fila");
             }
-            gui.cbo_cliente.requestFocus();
         }
         
         if (e.getSource() == gui.btn_eliminar) {
@@ -214,13 +239,16 @@ public class DetallesVentasController implements ActionListener , KeyListener {
                         JOptionPane.YES_NO_OPTION, 
                         JOptionPane.QUESTION_MESSAGE);
                 if (ok == 0) {
+                    sumarStock();
                     crud.eliminar((DetalleVentas) modelo.getDetalleVentasByRow(fila));
                     num_productos--;
                     listar(num_venta);
+                    operacion = 'N';
                 }
             } else {
                 JOptionPane.showMessageDialog(gui, "Debe seleccionar una fila");
             }
+            operacion = 'N';
             CalcularSubtotalGral();
             limpiar();
         }
@@ -229,45 +257,59 @@ public class DetallesVentasController implements ActionListener , KeyListener {
             //habilitarBoton(false);
             gui.jList1.setVisible(false);
             limpiar();
+            operacion = 'N';
         }
         
+        
         if (e.getSource() == gui.btn_añadir) {
-            boolean v_control = validarDatos();
+                        boolean v_control = validarDatos();
             if(v_control == true){
                 JOptionPane.showMessageDialog(gui, "Favor completar los datos");
                 return;
             }
+                        int cant = Integer.parseInt(gui.txt_cantidad_de_venta.getText());
+                        int stock = Integer.parseInt(gui.txt_stockdisponible.getText());
+                        int stockact = stock - cant;
+            if (stockact < 0){
+                JOptionPane.showMessageDialog(gui, "Stock insuficiente para realizar esta venta.");
+                gui.txt_cantidad_de_venta.requestFocus();
+                return;
+            }
+                        
+
             System.out.println("Evento click de guardar");
             if (operacion == 'N') {
                 try {
                     crud.insertar(getDetalleVentasForm());
+                    restarStock();
                 } catch (java.text.ParseException ex) {
                     Logger.getLogger(DetallesVentasController.class.getName()).log(Level.SEVERE, null, ex);
                 }
                 num_productos++;
-                gui.cbo_cliente.requestFocus();
+                gui.txt_descripcion.requestFocus();
             }
             
             if (operacion == 'E') {
                 try {
+                    sumarStock();
                     crud.actualizar(getDetalleVentasForm());
+                    restarStock();
                 } catch (java.text.ParseException ex) {
                     Logger.getLogger(DetallesVentasController.class.getName()).log(Level.SEVERE, null, ex);
                 }
-                habilitarCampos(false);
             }
             
             CalcularSubtotalGral();
             listar(num_venta);
             limpiar();
-            
+            operacion = 'N';
         }
         System.out.println(operacion);
     }
 
     // Metodo encargado de habilitar o deshabilitar los campos
     private void habilitarCampos(Boolean estado) {
-        gui.cbo_cliente.setEnabled(estado);
+        //gui.cbo_cliente.setEnabled(estado);
         //gui.txt_fecha.setEnabled(estado);
         //gui.cbo_formapago.setEnabled(estado);
         
@@ -291,7 +333,7 @@ public class DetallesVentasController implements ActionListener , KeyListener {
         d_ventas.setVenta(Integer.valueOf(gui.txt_factura.getText()));
         d_ventas.setPrecio(Integer.valueOf(gui.txt_precio_venta.getText()));
         d_ventas.setCantidad(Integer.valueOf(gui.txt_cantidad_de_venta.getText()));
-        d_ventas.setCodigo(gui.txt_idproducto.getText());
+        d_ventas.setIdproducto(Integer.valueOf(gui.txt_idproducto.getText()));
         d_ventas.setSubtotal(CalcularSubtotal());
         d_ventas.setProducto(gui.txt_descripcion.getText());
 //        d_ventas.setMontoCuotas(Integer.valueOf(gui.txt_subtotal.getText()));
@@ -306,7 +348,7 @@ public class DetallesVentasController implements ActionListener , KeyListener {
     private void setDetalleVentasForm(DetalleVentas item) {
         System.out.println(item);
         d_ventas.setId(item.getId());
-        gui.txt_idproducto.setText(item.getCodigo());
+        gui.txt_idproducto.setText(item.getIdproducto().toString());
         gui.txt_cantidad_de_venta.setText(item.getCantidad().toString());
         //gui.cbo_cliente.setSelectedItem(item.getIdCliente());
         //gui.cbo_formapago.setSelected(item.getMetodo_pago());
@@ -373,7 +415,7 @@ public class DetallesVentasController implements ActionListener , KeyListener {
             //int idProducto = Integer.parseInt(idText);
             DetalleVentas producto = crud.buscarPorNameProducto(name);
             if (producto != null) {
-                gui.txt_idproducto.setText(producto.getCodigo());
+                gui.txt_idproducto.setText(producto.getIdproducto().toString());
             } else {
                 //gui.txt_descripcion.setText("Producto no encontrado");
                 gui.txt_precio_venta.setText("0");
@@ -415,6 +457,32 @@ public class DetallesVentasController implements ActionListener , KeyListener {
             gui.txt_cantidad_de_venta.setText("");
         }
     }
+    
+    private void restarStock(){
+        // Actualizar el stock del producto
+        Integer idProducto = Integer.valueOf(gui.txt_idproducto.getText());
+        Integer cantidadVendida = Integer.valueOf(gui.txt_cantidad_de_venta.getText());
+
+        // Obtener el stock actual del producto
+        DetalleVentas producto = crud.buscarPorIdProducto(idProducto); // Suponiendo que tienes un método para buscar productos por ID
+        if (producto != null) {
+            int stockActual = producto.getCantidad();
+            int nuevoStock = stockActual - cantidadVendida;
+            crud.actualizarStock(idProducto, nuevoStock);
+        }
+}
+
+private void sumarStock(){                          
+        // Actualizar el stock del producto
+        int idProducto = IdAnt;
+
+
+        // Obtener el stock actual del producto
+        DetalleVentas producto = crud.buscarPorIdProducto(idProducto); // Suponiendo que tienes un método para buscar productos por ID
+            int stockActual = producto.getCantidad();
+            int nuevoStock = stockActual + cantAnt;
+            crud.actualizarStock(idProducto, nuevoStock);
+}
     
     private void actualizarProductoPorCod() {
         String CodText = gui.txt_idproducto.getText();

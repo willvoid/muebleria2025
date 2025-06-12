@@ -16,7 +16,7 @@ import javax.swing.table.AbstractTableModel;
 public class ProductoTablaModel extends AbstractTableModel {
 
     List<Producto> lista;
-    private String[] columnas = {"ID", "CODIGO" ,"NOMBRE", "PRECIO VENTA", "IVA", "PRECIO COMPRA", "CANTIDAD"};
+    private String[] columnas = {"ID", "NOMBRE", "PRECIO VENTA", "PRECIO COMPRA", "STOCK"};
 
     public void setLista(List<Producto> lista) {
         // Inicializamos las lista de productos
@@ -42,16 +42,12 @@ public class ProductoTablaModel extends AbstractTableModel {
             case 0:
                 return producto.getId();
             case 1:
-                return producto.getCodigo();
-            case 2:
                 return producto.getNombre();
-            case 3:
+            case 2:
                 return producto.getPrecio();
-            case 4:
-                return producto.getIva().getNombre();
-            case 5:
+            case 3:
                 return producto.getPrecio_compra();
-            case 6:
+            case 4:
                 return producto.getCantidad();
             default:
                 return null;

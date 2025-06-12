@@ -38,7 +38,7 @@ public class DetalleVentasCrudImpl implements Crud<DetalleVentas> {
         public void insertar(DetalleVentas m) {
             try {
                 //Preparar sentencia
-                String sql = "insert into detalle_ventas (venta_id,producto_cod,cantidad,precio_unitario,subtotal,descripcion) values(?,?,?,?,?,?)";
+                String sql = "insert into detalle_ventas (venta_id,producto_cod,cantidad,precio_unitario,subtotal,descripcion,idproducto) values(?,?,?,?,?,?,?)";
                 sentencia = conec.prepareStatement(sql);
                 //Asginar valor a los parametros
                 sentencia.setInt(1, m.getVenta());
@@ -47,6 +47,7 @@ public class DetalleVentasCrudImpl implements Crud<DetalleVentas> {
                 sentencia.setInt(4, m.getPrecio());
                 sentencia.setInt(5, m.getSubtotal());
                 sentencia.setString(6,m.getProducto());
+                sentencia.setInt(7,m.getIdproducto());
     //            sentencia.setInt(7,m.getMontoCuotas());
     //            sentencia.setInt(8,m.getNro_cuotas());
     //            sentencia.setInt(9,m.getMontoPagado());
@@ -61,9 +62,9 @@ public class DetalleVentasCrudImpl implements Crud<DetalleVentas> {
         @Override
         public void actualizar(DetalleVentas obj) {
             try {
-                String sql = "update detalle_ventas set producto_cod=?,cantidad=?,precio_unitario=?,subtotal=?,descripcion=? where id_detalle=?";
+                String sql = "update detalle_ventas set idproducto=?,cantidad=?,precio_unitario=?,subtotal=?,descripcion=? where id_detalle=?";
                 sentencia = conec.prepareStatement(sql);
-                sentencia.setString(1, obj.getCodigo());
+                sentencia.setInt(1, obj.getIdproducto());
                 sentencia.setInt(2, obj.getCantidad());
                 sentencia.setInt(3, obj.getPrecio());
                 sentencia.setInt(4, obj.getSubtotal());
@@ -105,6 +106,20 @@ public class DetalleVentasCrudImpl implements Crud<DetalleVentas> {
                 Logger.getLogger(DetalleVentasCrudImpl.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
+        
+        public void eliminartodo(Integer idventa) {
+            try {
+                //Prepara sentencia sql
+                String sql = "delete from detalle_ventas where venta_id=?";
+                sentencia = conec.prepareStatement(sql);
+                // enviar valores de los parametros
+                sentencia.setInt(1,idventa);
+                // ejecutar sentencia
+                sentencia.executeUpdate();
+            } catch (SQLException ex) {
+                Logger.getLogger(DetalleVentasCrudImpl.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
 
         public DetalleVentas buscarPorIdProducto(int id) {
            DetalleVentas detalleVentas = null;
@@ -132,7 +147,7 @@ public class DetalleVentasCrudImpl implements Crud<DetalleVentas> {
        
        public DetalleVentas buscarCodProducto(String cod) {
            DetalleVentas detalleVentas = null;
-           String sql = "SELECT * FROM producto WHERE codigo = ?";
+           String sql = "SELECT * FROM producto WHERE id = ?";
            Producto producto = null;
 
            try {
@@ -169,7 +184,7 @@ public class DetalleVentasCrudImpl implements Crud<DetalleVentas> {
                    detalleVentas.setProducto(rs.getString("nombre"));
                    detalleVentas.setPrecio(rs.getInt("precio"));
                    detalleVentas.setCantidad(rs.getInt("cantidad"));
-                   detalleVentas.setCodigo(rs.getString("codigo"));
+                   detalleVentas.setCodigo(rs.getString("id"));
                    // Asume otros campos según tu modelo y tabla
                }
            } catch (SQLException e) {
@@ -259,7 +274,7 @@ public class DetalleVentasCrudImpl implements Crud<DetalleVentas> {
 "			(dv.precio_unitario * dv.cantidad) * (i.valor::numeric/100)/(1+(i.valor::numeric/100))" +
 "		  ) AS total_iva " +
 "                        FROM detalle_ventas dv " +
-"                        LEFT JOIN producto p ON dv.producto_cod = p.codigo " +
+"                        LEFT JOIN producto p ON dv.idproducto = p.id " +
 "                        LEFT JOIN iva i ON p.idiva = i.id " +
 "                        WHERE dv.venta_id = ?";
 
@@ -290,7 +305,7 @@ public class DetalleVentasCrudImpl implements Crud<DetalleVentas> {
 "        END" +
 "    ), 0) AS total_descuentos " +
 "FROM detalle_ventas dv " +
-"LEFT JOIN producto p ON dv.producto_cod = p.codigo " +
+"LEFT JOIN producto p ON dv.idproducto = p.id " +
 "LEFT JOIN descuentos d ON d.idproducto = p.id " +
 "WHERE dv.venta_id = ?;";
         
@@ -316,7 +331,7 @@ public List<DetalleVentas> listar(String textoBuscado) {
     
     if (textoBuscado != null && !textoBuscado.trim().isEmpty()) {
         try {
-            String sql = "SELECT id_detalle, producto_cod, descripcion, cantidad, precio_unitario, subtotal, venta_id, montocuotas,nro_cuotas,montopagado " +
+            String sql = "SELECT id_detalle, idproducto, descripcion, cantidad, precio_unitario, subtotal, venta_id, montocuotas,nro_cuotas,montopagado " +
                          "FROM detalle_ventas " +
                          "WHERE venta_id = ?";
             try (PreparedStatement preparedStatement = conec.prepareStatement(sql)) {
@@ -326,7 +341,7 @@ public List<DetalleVentas> listar(String textoBuscado) {
                         Producto producto = new Producto();
                         DetalleVentas detalleVentas = new DetalleVentas();
                         detalleVentas.setId(rs.getInt("id_detalle"));
-                        detalleVentas.setCodigo(rs.getString("producto_cod"));
+                        detalleVentas.setIdproducto(rs.getInt("idproducto"));
                         detalleVentas.setProducto(rs.getString("descripcion"));
                         detalleVentas.setCantidad(rs.getInt("cantidad"));
                         detalleVentas.setPrecio(rs.getInt("precio_unitario"));

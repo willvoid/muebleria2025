@@ -36,7 +36,7 @@ public class VentasCrudImpl implements Crud<Ventas> {
     public void insertar(Ventas m) {
         try {
             //Preparar sentencia
-            String sql = "insert into ventas (fecha_venta,idcliente,idusuario,metodo_de_pago,total,estado) values(?,?,?,?,?,?)";
+            String sql = "insert into ventas (fecha_venta,idcliente,idusuario,metodo_de_pago,total,estado,tipo_f) values(?,?,?,?,?,?,?)";
             sentencia = conec.prepareStatement(sql);
             
             // Convertir java.util.Date a java.sql.Date
@@ -50,7 +50,8 @@ public class VentasCrudImpl implements Crud<Ventas> {
             sentencia.setInt(3, m.getIdUsuario());
             sentencia.setString(4, "Efectivo");
             sentencia.setInt(5, m.getTotal());
-            sentencia.setString(6, m.getEstado());
+            sentencia.setString(6, "Pagado");
+            sentencia.setString(7, "Contado");
             //Ejecutar sentencia
             sentencia.executeUpdate();
         } catch (SQLException ex) {

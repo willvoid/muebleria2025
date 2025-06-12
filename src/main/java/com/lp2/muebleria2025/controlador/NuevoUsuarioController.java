@@ -15,7 +15,10 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.sql.SQLException;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 
@@ -42,7 +45,6 @@ public class NuevoUsuarioController implements ActionListener, KeyListener {
 
         habilitarCampos(true);
         habilitarBoton(true);
-
         //listar("");
     }
 
@@ -71,34 +73,71 @@ public class NuevoUsuarioController implements ActionListener, KeyListener {
         if (e.getSource() == gui.btn_guardar) {
             boolean v_control = validarDatos();
             boolean user_control = crud.ComprobarUser(getUsuarioForm());
-            int clave = gui.txt_contraseña.getText().length();
-            String txtusuario  = gui.txt_nombre.getText();
-            if (v_control == true) {
+            int clave = gui.txt_password.getText().length();
+            String usuario = gui.txt_usuario.getText();
+            String contraseña = gui.txt_password.getText();
+            String rol = gui.cbo_rol.getSelectedItem().toString();
+            String contraseña2 = gui.txt_password2.getText();
+
+            // Validaciones previas
+            if (v_control) {
                 JOptionPane.showMessageDialog(gui, "Favor completar los datos");
                 return;
             }
-            if (user_control == true){
-                JOptionPane.showMessageDialog(gui, "El Usuario '" + gui.txt_usuario.getText() + "' ya existe. Use otro Usuario");
+
+            if (user_control){
+                JOptionPane.showMessageDialog(gui, "El Usuario '" + usuario + "' ya existe. Use otro Usuario");
                 return;
             }
+
             if (clave < 6) {
-                JOptionPane.showMessageDialog(gui, "La contraseña debe tener almenos 6 caracteres");
+                JOptionPane.showMessageDialog(gui, "La contraseña debe tener al menos 6 caracteres");
                 return;
             }
+
             if (clave > 45) {
-                JOptionPane.showMessageDialog(gui, "La contraseña no debe tener mas de 45 caracteres");
+                JOptionPane.showMessageDialog(gui, "La contraseña no debe tener más de 45 caracteres");
+                return;
+            }
+
+            // Validar caracteres permitidos (sólo letras y números, sin espacios)
+            if (!usuario.matches("^[a-zA-Z0-9._-]+$")) {
+                JOptionPane.showMessageDialog(gui, "El usuario solo debe contener letras y números, sin espacios ni caracteres especiales");
+                gui.txt_usuario.requestFocus();
+                return;
+            }
+
+            if (!contraseña.matches("^[a-zA-Z0-9._-]+$")) {
+                JOptionPane.showMessageDialog(gui, "La contraseña solo debe contener letras y números, sin espacios ni caracteres especiales");
+                gui.txt_password.requestFocus();
                 return;
             }
             
+            if (!contraseña.equals(contraseña2)) {
+                JOptionPane.showMessageDialog(gui, "Las contraseñas no coinciden");
+                gui.txt_password2.requestFocus();
+                return;
+            }
             
-            System.out.println("Evento click de guardar");
+            if ("SELECCIONAR ROL".equals(rol)){
+                JOptionPane.showMessageDialog(gui, "Favor Seleccione un Rol");
+                gui.cbo_rol.requestFocus();
+                return;
+            }
 
-            /*crud.insertar(getUsuarioForm());
-            gui.txt_nombre.requestFocus();*/
-
-            limpiar();
-
+            // Si todo está correcto
+            System.out.println("Evento click de guardar nuevo usuario");
+            try{
+                crud.insertar(getUsuarioForm());
+                gui.txt_nombre.requestFocus();
+                JOptionPane.showMessageDialog(gui, "Usuario nuevo añadido correctamente");
+                limpiar();
+            }catch(Exception ex){
+                Logger.getLogger(NuevoUsuarioController.class.getName()).log(Level.SEVERE, null, ex);
+                JOptionPane.showMessageDialog(null, ex, "Error al Ingresar Nuevo usuario", JOptionPane.ERROR_MESSAGE);
+            }
         }
+
         System.out.println(operacion);
     }
 
@@ -119,7 +158,8 @@ public class NuevoUsuarioController implements ActionListener, KeyListener {
         gui.txt_nombre.setText("");
         gui.txt_apellido.setText("");
         gui.txt_usuario.setText("");
-        gui.txt_contraseña.setText("");
+        gui.txt_password.setText("");
+        gui.txt_password2.setText("");
     }
 
     // funcion o metodo encargado de recuperrar los valores de los JTextField en un objeto
@@ -127,7 +167,7 @@ public class NuevoUsuarioController implements ActionListener, KeyListener {
         usuario.setNombre(gui.txt_nombre.getText());
         usuario.setApellido(gui.txt_apellido.getText());
         usuario.setUsuario(gui.txt_usuario.getText());
-        usuario.setClave(gui.txt_contraseña.getText().trim());
+        usuario.setClave(gui.txt_password.getText().trim());
         usuario.setRol((String) gui.cbo_rol.getSelectedItem());
         return usuario;
     }
@@ -153,7 +193,7 @@ public class NuevoUsuarioController implements ActionListener, KeyListener {
         if (gui.txt_usuario.getText().isEmpty()) {
             vacio = true;
         }
-        if (gui.txt_contraseña.getText().isEmpty()) {
+        if (gui.txt_password.getText().isEmpty()) {
             vacio = true;
         }
         return vacio;
