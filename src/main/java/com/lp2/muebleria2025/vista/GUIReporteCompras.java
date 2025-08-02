@@ -31,18 +31,18 @@ import net.sf.jasperreports.view.JasperViewer;
  *
  * @author HP
  */
-public class GUIVentas_Contado_R extends javax.swing.JFrame {
+public class GUIReporteCompras extends javax.swing.JFrame {
     Connection conec;
 
     /**
      * Creates new form VentanaPrincipal
      */
-    public GUIVentas_Contado_R() {
+    public GUIReporteCompras() {
         initComponents();
         //setDefaultCloseOperation(this.DISPOSE_ON_CLOSE);
         Conexion conectar = new Conexion();
         conec = conectar.conectarBD();
-        this.setTitle("Reporte Ventas");
+        this.setTitle("Reporte Compras");
         txt_desde.setEnabled(false);
         txt_hasta.setEnabled(false);
         setDefaultCloseOperation(this.DISPOSE_ON_CLOSE);
@@ -218,7 +218,7 @@ public class GUIVentas_Contado_R extends javax.swing.JFrame {
             return;
         }
 
-        System.out.println("Generar Reporte de Ventas");
+        System.out.println("Generar Compras");
         try {
             Date desde_date;
             desde_date = StringToDate(txt_desde, 1);
@@ -227,7 +227,7 @@ public class GUIVentas_Contado_R extends javax.swing.JFrame {
             parameters.put("desde", desde_date);
             parameters.put("hasta",hasta_date);
             JasperReport report = JasperCompileManager.compileReport(
-                "C:\\reportes\\reporte_ventas_2025.jrxml");
+                "C:\\reportes\\reporte_compras_2025.jrxml");
             JasperPrint print = JasperFillManager.fillReport(report, parameters, conec);
             //JasperViewer.viewReport(print, false);
             JasperViewer viewer = new JasperViewer(print, false);
@@ -259,14 +259,18 @@ public class GUIVentas_Contado_R extends javax.swing.JFrame {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(GUIVentas_Contado_R.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(GUIReporteCompras.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(GUIVentas_Contado_R.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(GUIReporteCompras.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(GUIVentas_Contado_R.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(GUIReporteCompras.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(GUIVentas_Contado_R.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(GUIReporteCompras.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
         //</editor-fold>
         //</editor-fold>
         //</editor-fold>
@@ -275,7 +279,7 @@ public class GUIVentas_Contado_R extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new GUIVentas_Contado_R().setVisible(true);
+                new GUIReporteCompras().setVisible(true);
             }
         });
     }

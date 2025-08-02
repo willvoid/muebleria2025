@@ -4,10 +4,10 @@
  */
 package com.lp2.muebleria2025.controlador;
 
-import com.lp2.muebleria2025.modelo.Marca;
-import com.lp2.muebleria2025.modelo.dao.MarcaCrudImpl;
-import com.lp2.muebleria2025.modelo.tabla.MarcaTablaModel;
-import com.lp2.muebleria2025.vista.GUIMarca;
+import com.lp2.muebleria2025.modelo.CuentaContable;
+import com.lp2.muebleria2025.modelo.dao.CuentaContableCrudImpl;
+import com.lp2.muebleria2025.modelo.tabla.CuentaContableTablaModel;
+import com.lp2.muebleria2025.vista.GUICuentasContables;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -22,17 +22,17 @@ import javax.swing.JTable;
  *
  * @author cmendieta
  */
-public class MarcaController implements ActionListener , KeyListener {
+public class CuentaContableController implements ActionListener , KeyListener {
     
-    private GUIMarca gui;
-    private MarcaCrudImpl crud;
+    private GUICuentasContables gui;
+    private CuentaContableCrudImpl crud;
     
     private char operacion;
-    Marca marca = new Marca();
+    CuentaContable marca = new CuentaContable();
     
-    MarcaTablaModel modelo = new MarcaTablaModel();
+    CuentaContableTablaModel modelo = new CuentaContableTablaModel();
     
-    public MarcaController(GUIMarca gui, MarcaCrudImpl crud) {
+    public CuentaContableController(GUICuentasContables gui, CuentaContableCrudImpl crud) {
         this.gui = gui;
         this.crud = crud;
         this.gui.btn_guardar.addActionListener(this);
@@ -46,10 +46,10 @@ public class MarcaController implements ActionListener , KeyListener {
             public void mouseClicked(MouseEvent e) {
                 JTable tabla = (JTable) e.getSource();
                 int row = tabla.rowAtPoint(e.getPoint());
-                MarcaTablaModel model = (MarcaTablaModel) tabla.getModel();
+                CuentaContableTablaModel model = (CuentaContableTablaModel) tabla.getModel();
                 //Devolver el objeto seleccionado en la fila
 
-                setMarcaForm(model.getMarcaByRow(row));
+                setCuentaContableForm(model.getCuentaContableByRow(row));
             }
         });
         
@@ -65,7 +65,7 @@ public class MarcaController implements ActionListener , KeyListener {
     }
     
     public void listar(String valorBuscado) {
-        List<Marca> lista = crud.listar(valorBuscado);
+        List<CuentaContable> lista = crud.listar(valorBuscado);
         modelo.setLista(lista);
         gui.tabla.setModel(modelo);
         gui.tabla.updateUI();
@@ -102,7 +102,7 @@ public class MarcaController implements ActionListener , KeyListener {
                         JOptionPane.YES_NO_OPTION, 
                         JOptionPane.QUESTION_MESSAGE);
                 if (ok == 0) {
-                    crud.eliminar(modelo.getMarcaByRow(fila));
+                    crud.eliminar(modelo.getCuentaContableByRow(fila));
                     listar("");
                 }
             } else {
@@ -121,15 +121,22 @@ public class MarcaController implements ActionListener , KeyListener {
                 JOptionPane.showMessageDialog(gui, "favor completar los datos");
                 return;
             }
+            
+            String tipo = gui.cbo_tipo.getSelectedItem().toString();
+            if ("Seleccionar".equals(tipo)){
+                JOptionPane.showMessageDialog(gui, "Seleccione un tipo de cuenta válido.");
+                return;
+            }
+            
             System.out.println("Evento click de guardar");
             if (operacion == 'N') {
-                crud.insertar(getMarcaForm());
+                crud.insertar(getCuentaContableForm());
                 
                 gui.txt_nombre.requestFocus();
             }
             
             if (operacion == 'E') {
-                crud.actualizar(getMarcaForm());
+                crud.actualizar(getCuentaContableForm());
                 habilitarCampos(false);
             }
             
@@ -155,16 +162,18 @@ public class MarcaController implements ActionListener , KeyListener {
     }
 
     // funcion o metodo encargado de recuperrar los valores de los JTextField en un objeto
-    private Marca getMarcaForm() {
+    private CuentaContable getCuentaContableForm() {
         marca.setNombre(gui.txt_nombre.getText());
+        marca.setTipo(gui.cbo_tipo.getSelectedItem().toString());
         return marca;
     }
 
     //Funcion o metodo encargado asignar valor los JTextField
-    private void setMarcaForm(Marca item) {
+    private void setCuentaContableForm(CuentaContable item) {
         System.out.println(item);
         marca.setId(item.getId());
         gui.txt_nombre.setText(item.getNombre());
+        gui.cbo_tipo.setSelectedItem(item.getTipo());
     }
     
     private boolean validarDatos(){

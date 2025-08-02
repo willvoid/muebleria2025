@@ -43,7 +43,7 @@ public class ProductoCrudImpl implements Crud<Producto> {
     public void insertar(Producto m) {
         try {
             //Preparar sentencia
-            String sql = "insert into producto (nombre,precio,idmarca,idiva,cantidad,precio_compra,codigo) values(?,?,?,?,?,?,?)";
+            String sql = "insert into producto (nombre,precio,idmarca,idiva,cantidad,precio_compra,codigo,precio_descuento,comision,nro_cuotas,monto_cuotas) values(?,?,?,?,?,?,?,?,?,?,?)";
             sentencia = conec.prepareStatement(sql);
             //Asginar valor a los parametros
             sentencia.setString(1, m.getNombre());
@@ -53,6 +53,10 @@ public class ProductoCrudImpl implements Crud<Producto> {
             sentencia.setInt(5, m.getCantidad());
             sentencia.setInt(6, m.getPrecio_compra());
             sentencia.setString(7, m.getCodigo());
+            sentencia.setInt(8, m.getPrecio_descuento());
+            sentencia.setInt(9, m.getComision());
+            sentencia.setInt(10, m.getNro_cuotas());
+            sentencia.setInt(11, m.getMonto_cuotas());
             //Ejecutar sentencia
             sentencia.executeUpdate();
         } catch (SQLException ex) {
@@ -63,7 +67,7 @@ public class ProductoCrudImpl implements Crud<Producto> {
     @Override
     public void actualizar(Producto obj) {
         try {
-            String sql = "update producto set nombre=?, precio=?,idmarca=?,idiva=?, cantidad=?, precio_compra=?, codigo=? where id=?";
+            String sql = "update producto set nombre=?, precio=?,idmarca=?,idiva=?, cantidad=?, precio_compra=?, codigo=?, precio_descuento=?, comision=?, nro_cuotas=?, monto_cuotas=? where id=?";
             sentencia = conec.prepareStatement(sql);
             sentencia.setString(1, obj.getNombre());
             sentencia.setInt(2, obj.getPrecio());
@@ -72,7 +76,11 @@ public class ProductoCrudImpl implements Crud<Producto> {
             sentencia.setInt(5, obj.getCantidad());
             sentencia.setInt(6, obj.getPrecio_compra());
             sentencia.setString(7, obj.getCodigo());
-            sentencia.setInt(8, obj.getId());
+            sentencia.setInt(8, obj.getPrecio_descuento());
+            sentencia.setInt(9, obj.getComision());
+            sentencia.setInt(10, obj.getNro_cuotas());
+            sentencia.setInt(11, obj.getMonto_cuotas());
+            sentencia.setInt(12, obj.getId());
             sentencia.executeUpdate();
         } catch (SQLException ex) {
             Logger.getLogger(ProductoCrudImpl.class.getName()).log(Level.SEVERE, null, ex);
@@ -155,6 +163,10 @@ sentencia = conec.prepareStatement(sql);
                 producto.setCantidad(rs.getInt("cantidad"));
                 producto.setPrecio_compra(rs.getInt("precio_compra"));
                 producto.setCodigo(rs.getString("codigo"));
+                producto.setPrecio_descuento(rs.getInt("precio_descuento"));
+                producto.setComision(rs.getInt("comision"));
+                producto.setNro_cuotas(rs.getInt("nro_cuotas"));
+                producto.setMonto_cuotas(rs.getInt("monto_cuotas"));
                 
                 //Asignar valor a iva
                 iva.setId(rs.getInt("idiva"));

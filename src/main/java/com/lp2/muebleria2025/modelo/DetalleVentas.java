@@ -21,6 +21,7 @@ public class DetalleVentas {
     private Integer montoPagado;
     private Integer interes;
     private String codigo;
+    private Integer precio_descuento;
 
     public Integer getId() {
         return id;
@@ -135,6 +136,15 @@ public class DetalleVentas {
     public void setCodigo(String codigo) {
         this.codigo = codigo;
     }
+
+    public Integer getPrecio_descuento() {
+        return precio_descuento;
+    }
+
+    public void setPrecio_descuento(Integer precio_descuento) {
+        this.precio_descuento = precio_descuento;
+    }
+    
     
     
     

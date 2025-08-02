@@ -36,7 +36,7 @@ public class VentasCrudImpl implements Crud<Ventas> {
     public void insertar(Ventas m) {
         try {
             //Preparar sentencia
-            String sql = "insert into ventas (fecha_venta,idcliente,idusuario,metodo_de_pago,total,estado,tipo_f) values(?,?,?,?,?,?,?)";
+            String sql = "insert into ventas (fecha_venta,idcliente,idusuario,metodo_de_pago,total,estado,tipo_f,descuento) values(?,?,?,?,?,?,?,?)";
             sentencia = conec.prepareStatement(sql);
             
             // Convertir java.util.Date a java.sql.Date
@@ -48,17 +48,45 @@ public class VentasCrudImpl implements Crud<Ventas> {
             sentencia.setDate(1, fechaSQL);
             sentencia.setInt(2, m.getIdCliente().getId());
             sentencia.setInt(3, m.getIdUsuario());
-            sentencia.setString(4, "Efectivo");
+            sentencia.setString(4, m.getMetodo_pago());
             sentencia.setInt(5, m.getTotal());
             sentencia.setString(6, "Pagado");
             sentencia.setString(7, "Contado");
+            sentencia.setInt(8, m.getDescuento());
             //Ejecutar sentencia
             sentencia.executeUpdate();
         } catch (SQLException ex) {
             Logger.getLogger(VentasCrudImpl.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+    
+    public void insertarcuotas(Ventas m) {
+        try {
+            //Preparar sentencia
+            String sql = "insert into ventas (fecha_venta,idcliente,idusuario,metodo_de_pago,total,estado,tipo_f,descuento) values(?,?,?,?,?,?,?,?)";
+            sentencia = conec.prepareStatement(sql);
+            
+            // Convertir java.util.Date a java.sql.Date
+            java.util.Date fechaVenta = m.getFechaVenta(); // Obtener fecha como java.util.Date
+            java.sql.Date fechaSQL = new java.sql.Date(fechaVenta.getTime()); // Convertir a java.sql.Date
 
+            
+            //Asginar valor a los parametros
+            sentencia.setDate(1, fechaSQL);
+            sentencia.setInt(2, m.getIdCliente().getId());
+            sentencia.setInt(3, m.getIdUsuario());
+            sentencia.setString(4, m.getMetodo_pago());
+            sentencia.setInt(5, m.getTotal());
+            sentencia.setString(6, m.getEstado());
+            sentencia.setString(7, "Financiado");
+            sentencia.setInt(8, m.getDescuento());
+            //Ejecutar sentencia
+            sentencia.executeUpdate();
+        } catch (SQLException ex) {
+            Logger.getLogger(VentasCrudImpl.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
     @Override
     public void actualizar(Ventas obj) {
         try {

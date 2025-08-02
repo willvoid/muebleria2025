@@ -4,6 +4,8 @@
  */
 package com.lp2.muebleria2025.modelo;
 
+import java.util.Objects;
+
 /**
  *
  * @author cmendieta
@@ -17,6 +19,10 @@ public class Producto {
     private Iva iva;
     private Integer precio_compra;
     private String codigo;
+    private Integer precio_descuento;
+    private Integer comision;
+    private Integer nro_cuotas;
+    private Integer monto_cuotas;
 
     public Integer getPrecio_compra() {
         return precio_compra;
@@ -85,16 +91,58 @@ public class Producto {
     public void setIva(Iva iva) {
         this.iva = iva;
     }
+
+    public Integer getPrecio_descuento() {
+        return precio_descuento;
+    }
+
+    public void setPrecio_descuento(Integer precio_descuento) {
+        this.precio_descuento = precio_descuento;
+    }
+
+    public Integer getComision() {
+        return comision;
+    }
+
+    public void setComision(Integer comision) {
+        this.comision = comision;
+    }
+
+    public Integer getNro_cuotas() {
+        return nro_cuotas;
+    }
+
+    public void setNro_cuotas(Integer nro_cuotas) {
+        this.nro_cuotas = nro_cuotas;
+    }
+
+    public Integer getMonto_cuotas() {
+        return monto_cuotas;
+    }
+
+    public void setMonto_cuotas(Integer monto_cuotas) {
+        this.monto_cuotas = monto_cuotas;
+    }
+    
+    
     
     @Override
     public String toString() {
         return nombre;
     }
+    
+
     @Override
     public boolean equals(Object obj) {
-        Integer cod1 = getId();
-        Integer cod2 = ((Producto)obj).getId();
-        if(cod1.equals(cod2)) return true;
-        return false;
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        Producto other = (Producto) obj;
+        return this.id == other.id;
     }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
+
 }

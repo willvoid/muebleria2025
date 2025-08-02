@@ -25,10 +25,6 @@ import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 
-/**
- *
- * @author cmendieta
- */
 public class ProductoController implements ActionListener , KeyListener {
     
     private GUIProducto gui;
@@ -197,6 +193,10 @@ public class ProductoController implements ActionListener , KeyListener {
         gui.cbo_Iva.setEnabled(estado);
         gui.txt_cantidad.setEnabled(estado);
         gui.txt_precio_compra.setEnabled(estado);
+        gui.txt_precio_descuento.setEnabled(estado);
+        gui.txt_comision.setEnabled(estado);
+        gui.txt_cuotas.setEnabled(estado);
+        gui.txt_monto_cuotas.setEnabled(estado);
     }
     
       private void habilitarBoton(Boolean estado) {
@@ -209,6 +209,10 @@ public class ProductoController implements ActionListener , KeyListener {
         gui.txt_precio.setText("");
         gui.txt_cantidad.setText("");
         gui.txt_precio_compra.setText("");
+        gui.txt_precio_descuento.setText("");
+        gui.txt_comision.setText("");
+        gui.txt_cuotas.setText("");
+        gui.txt_monto_cuotas.setText("");
     }
 
     // funcion o metodo encargado de recuperrar los valores de los JTextField en un objeto
@@ -220,6 +224,10 @@ public class ProductoController implements ActionListener , KeyListener {
         producto.setMarca((Marca) gui.cbo_Marca.getSelectedItem());
         producto.setCantidad(Integer.valueOf(gui.txt_cantidad.getText()));
         producto.setCodigo(gui.txt_codigo.getText());
+        producto.setPrecio_descuento(Integer.valueOf(gui.txt_precio_descuento.getText()));
+        producto.setComision(Integer.valueOf(gui.txt_comision.getText()));
+        producto.setNro_cuotas(Integer.valueOf(gui.txt_cuotas.getText()));
+        producto.setMonto_cuotas(Integer.valueOf(gui.txt_monto_cuotas.getText()));
         return producto;
     }
     
@@ -235,6 +243,11 @@ public class ProductoController implements ActionListener , KeyListener {
         gui.cbo_Marca.setSelectedItem(item.getMarca());
         gui.txt_cantidad.setText(item.getCantidad().toString());
         gui.txt_codigo.setText(item.getCodigo());
+        
+        gui.txt_precio_descuento.setText(item.getPrecio_descuento().toString());
+        gui.txt_comision.setText(item.getComision().toString());
+        gui.txt_cuotas.setText(item.getNro_cuotas().toString());
+        gui.txt_monto_cuotas.setText(item.getMonto_cuotas().toString());
     }
     
     private boolean validarDatos(){
@@ -249,6 +262,18 @@ public class ProductoController implements ActionListener , KeyListener {
             vacio = true;
         }
         if(gui.txt_precio_compra.getText().isEmpty()){
+            vacio = true;
+        }
+        if(gui.txt_precio_descuento.getText().isEmpty()){
+            vacio = true;
+        }
+        if(gui.txt_comision.getText().isEmpty()){
+            vacio = true;
+        }
+        if(gui.txt_cuotas.getText().isEmpty()){
+            vacio = true;
+        }
+        if(gui.txt_monto_cuotas.getText().isEmpty()){
             vacio = true;
         }
         return vacio;

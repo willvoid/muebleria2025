@@ -6,19 +6,22 @@ package com.lp2.muebleria2025.controlador;
 
 import com.formdev.flatlaf.json.ParseException;
 import com.lp2.muebleria2025.modelo.Cliente;
-import com.lp2.muebleria2025.modelo.DetalleVentas;
+import com.lp2.muebleria2025.modelo.DetalleCompras;
 import com.lp2.muebleria2025.modelo.Producto;
-import com.lp2.muebleria2025.modelo.Transaccion;
 import com.lp2.muebleria2025.modelo.Usuario;
-import com.lp2.muebleria2025.modelo.Ventas;
+import com.lp2.muebleria2025.modelo.Compras;
+import com.lp2.muebleria2025.modelo.DetalleVentas;
+import com.lp2.muebleria2025.modelo.Proveedor;
+import com.lp2.muebleria2025.modelo.Transaccion;
 import com.lp2.muebleria2025.modelo.dao.ClienteCrudImpl;
 import com.lp2.muebleria2025.modelo.dao.Conexion;
-import com.lp2.muebleria2025.modelo.dao.DetalleVentasCrudImpl;
-import com.lp2.muebleria2025.modelo.dao.TransaccionCrudImpl;
+import com.lp2.muebleria2025.modelo.dao.DetalleComprasCrudImpl;
 import com.lp2.muebleria2025.modelo.dao.UsuarioCrudImpl;
-import com.lp2.muebleria2025.modelo.dao.VentasCrudImpl;
-import com.lp2.muebleria2025.modelo.tabla.VentasTablaModel;
-import com.lp2.muebleria2025.vista.GUIVentasF;
+import com.lp2.muebleria2025.modelo.dao.ComprasCrudImpl;
+import com.lp2.muebleria2025.modelo.dao.ProveedorCrudImpl;
+import com.lp2.muebleria2025.modelo.dao.TransaccionCrudImpl;
+import com.lp2.muebleria2025.modelo.tabla.ComprasTablaModel;
+import com.lp2.muebleria2025.vista.GUIComprasF;
 
 
 import java.awt.event.ActionEvent;
@@ -56,25 +59,25 @@ import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
  *
  * @author cmendieta
  */
-public class VentasController implements ActionListener , KeyListener {
+public class ComprasController implements ActionListener , KeyListener {
     
-    private GUIVentasF gui;
-    private VentasCrudImpl crud;
+    private GUIComprasF gui;
+    private ComprasCrudImpl crud;
     Connection conec;
     
     private char operacion;
-    Ventas ventas = new Ventas();
+    Compras ventas = new Compras();
     
     SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-    ClienteCrudImpl crudCliente = new ClienteCrudImpl();
-    DetalleVentasCrudImpl crud_dv = new DetalleVentasCrudImpl();
+    ProveedorCrudImpl crudProveedor = new ProveedorCrudImpl();
+    DetalleComprasCrudImpl crud_dv = new DetalleComprasCrudImpl();
     UsuarioCrudImpl crudUser = new UsuarioCrudImpl();
     Transaccion transaccion = new Transaccion();
     private final TransaccionCrudImpl crudtr = new TransaccionCrudImpl();
     
-    VentasTablaModel modelo = new VentasTablaModel();
+    ComprasTablaModel modelo = new ComprasTablaModel();
     
-    public VentasController(GUIVentasF gui, VentasCrudImpl crud) {
+    public ComprasController(GUIComprasF gui, ComprasCrudImpl crud) {
         this.gui = gui;
         this.crud = crud;
         this.gui.btn_añadir.addActionListener(this);
@@ -109,12 +112,12 @@ public class VentasController implements ActionListener , KeyListener {
                 }
             }
         });
-        llenarComboCliente(gui.cbo_cliente);
+        llenarComboProveedor(gui.cbo_proveedor);
         //llenarComboUsuario(gui.cbo_usuario);
-        gui.txt_descuento.setEnabled(false);
-        gui.txt_descuento.setVisible(false);
         setFechaAct();
         operacion = 'N';
+        gui.txt_subtotal.setVisible(false);
+        gui.txt_descuento.setVisible(false);
         gui.btn_nuevo.setVisible(false);
         habilitarCampos(true);
         habilitarBoton(true);
@@ -130,10 +133,10 @@ public class VentasController implements ActionListener , KeyListener {
             public void mouseClicked(MouseEvent e) {
                 JTable tabla = (JTable) e.getSource();
                 int row = tabla.rowAtPoint(e.getPoint());
-                VentasTablaModel model = (VentasTablaModel) tabla.getModel();
+                ComprasTablaModel model = (ComprasTablaModel) tabla.getModel();
                 //Devolver el objeto seleccionado en la fila
 
-                setVentasForm(model.getVentasByRow(row));
+                setComprasForm(model.getComprasByRow(row));
             }
         });*/
         
@@ -149,7 +152,7 @@ public class VentasController implements ActionListener , KeyListener {
     }
     
     /*public void listar(String valorBuscado) {
-        List<Ventas> lista = crud.listar(valorBuscado);
+        List<Compras> lista = crud.listar(valorBuscado);
         modelo.setLista(lista);
         gui.tabla.setModel(modelo);
         gui.tabla.updateUI();
@@ -174,76 +177,52 @@ public class VentasController implements ActionListener , KeyListener {
         
         if (e.getSource() == gui.btn_generar_venta) {
             
-            Cliente seleccionadoCliente = (Cliente) gui.cbo_cliente.getSelectedItem();
+            Proveedor seleccionadoProveedor = (Proveedor) gui.cbo_proveedor.getSelectedItem();
             
-            if ("Seleccionar Cliente".equals(seleccionadoCliente.getRazonSocial())) {
-                JOptionPane.showMessageDialog(gui, "Debe seleccionar un Cliente Valido.");
-                gui.cbo_cliente.requestFocus();
+            if ("Seleccionar Proveedor".equals(seleccionadoProveedor.getRazonSocial())) {
+                JOptionPane.showMessageDialog(gui, "Debe seleccionar un Proveedor Valido.");
                 return;
             }
             
             if (validarDetalle()==true){
-                JOptionPane.showMessageDialog(gui, "No se puede cerrar la venta sin ningún producto en la lista.");
+                JOptionPane.showMessageDialog(gui, "No se ha añadido ningún producto para comprar");
                 return;
-            }
-            
-            String descuento = gui.txt_descuento_n.getText();
-            if (descuento.isEmpty()){
-               JOptionPane.showMessageDialog(gui, "El descuento no puede estar vacío.");
-               gui.txt_descuento_n.requestFocus();
-               return;
             }
             
             boolean v_control = validarDatos();
             if(v_control == true){
-                JOptionPane.showMessageDialog(gui, "Favor completar los datos.");
+                JOptionPane.showMessageDialog(gui, "Favor completar los datos");
                 return;
             }
-            
-            String forma_pago = gui.cbo_forma_pago.getSelectedItem().toString();
-            if ("Seleccionar".equals(forma_pago)) {
-                JOptionPane.showMessageDialog(gui, "Favor seleccionar forma de pago.");
-                gui.cbo_forma_pago.requestFocus();
-                return;
-            }
-            
-            Integer total_desc = Integer.valueOf(gui.txt_totalventas.getText());
-                Integer descuento_max = CalcularDescVentaGral();
-                if (total_desc < descuento_max) {
-                    JOptionPane.showMessageDialog(gui, "El Descuento máximo es de: " + descuento_max);
-                    gui.txt_totalventas.requestFocus();
-                    return;
-                }
-            
             System.out.println("Evento click de Generar Venta");
             
             int ok = JOptionPane.showConfirmDialog(gui,
-                        "¿Realmente desea Cerrar la Venta?", 
+                        "¿Realmente desea Cerrar la Compra?", 
                         "Confirmar operacion", 
                         JOptionPane.YES_NO_OPTION, 
                         JOptionPane.QUESTION_MESSAGE);
                 if (ok == 0) {
                     try {
-                        crud.insertar(getVentasForm());
+                        crud.insertar(getComprasForm());
                         crudtr.insertar(getTransaccionForm());
                         
                         actVentaID();
                         
-                        generarTicket();
+                        //generarTicket();
                         
-                        gui.txt_totalventas.setEnabled(false);
                         
-                        gui.cbo_cliente.requestFocus();
+                        
+                        gui.cbo_proveedor.requestFocus();
                         limpiar();
                     } catch (java.text.ParseException ex) {
-                        Logger.getLogger(VentasController.class.getName()).log(Level.SEVERE, null, ex);
+                        Logger.getLogger(ComprasController.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
             /*if (operacion == 'E') {
                 try {
-                    crud.actualizar(getVentasForm());
+                    crud.actualizar(getComprasForm());
                 } catch (java.text.ParseException ex) {
-                    Logger.getLogger(VentasController.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(ComprasController.class.getName()).log(Level.SEVERE, null, ex);
                 }
                 habilitarCampos(false);
             }*/
@@ -255,7 +234,7 @@ public class VentasController implements ActionListener , KeyListener {
 
     // Metodo encargado de habilitar o deshabilitar los campos
     private void habilitarCampos(Boolean estado) {
-        gui.cbo_cliente.setEnabled(estado);
+        gui.cbo_proveedor.setEnabled(estado);
         gui.txt_fecha.setEnabled(estado);
         //gui.cbo_formapago.setEnabled(estado);
         
@@ -272,54 +251,42 @@ public class VentasController implements ActionListener , KeyListener {
     }*/
 
     // funcion o metodo encargado de recuperrar los valores de los JTextField en un objeto
-    private Ventas getVentasForm() throws java.text.ParseException {
+    private Compras getComprasForm() throws java.text.ParseException {
         //ventas.setNombre(gui.cbo_cliente.getText());
-        Integer Promocion = Integer.valueOf(gui.txt_descuento.getText());
-        Integer DescuentoTotal = 0;
-        String Descuento = gui.txt_descuento_n.getText();
-        if (!Descuento.isEmpty()){
-            Integer DescInt = Integer.valueOf(Descuento);
-            DescuentoTotal = Promocion + DescInt;
-        }else {
-            DescuentoTotal = Promocion;
-        }
-        
         try {
             Date fecha = sdf.parse(gui.txt_fecha.getText()); // Convierte el texto a un Date
-            ventas.setFechaVenta(fecha); // Establece la fecha como un objeto Date
+            ventas.setFechaCompra(fecha); // Establece la fecha como un objeto Date
         } catch (ParseException e) {
             JOptionPane.showMessageDialog(null, "Formato de fecha inválido. Usa el formato dd/MM/yyyy", "Error", JOptionPane.ERROR_MESSAGE);
             return null; // O maneja el error según lo necesario
         }
-        ventas.setMetodo_pago(gui.cbo_forma_pago.getSelectedItem().toString());
-        ventas.setIdCliente((Cliente) gui.cbo_cliente.getSelectedItem());
+        ventas.setIdProveedor((Proveedor) gui.cbo_proveedor.getSelectedItem());
         ventas.setTotal(Integer.valueOf(gui.txt_totalventas.getText()));
         ventas.setIdUsuario(Integer.valueOf(gui.txt_idusuario.getText()));
-        ventas.setDescuento(DescuentoTotal);
         return ventas;
     }
     
     private Transaccion getTransaccionForm() throws java.text.ParseException {
-         String num_venta = gui.txt_factura.getText();
+        String num_venta = gui.txt_factura.getText();
         List<DetalleVentas> descripcionesList = crud_dv.listardescripcion(num_venta); //Lista de DetalleVentas
         String descripciones = descripcionesList.stream().map(DetalleVentas::getProducto).collect(Collectors.joining(", "));
         System.out.println("Concepto: "+descripciones);
         transaccion.setIdpago(Integer.valueOf(gui.txt_factura.getText()));
         transaccion.setMonto(Integer.valueOf(gui.txt_totalventas.getText()));
-        transaccion.setTipo("Ingreso");
-        transaccion.setConcepto("Venta Contado: "+descripciones);
-        transaccion.setForma_pago(gui.cbo_forma_pago.getSelectedItem().toString());
+        transaccion.setTipo("Egreso");
+        transaccion.setConcepto("Compra: "+descripciones);
+        //transaccion.setForma_pago(gui.cbo_forma_pago.getSelectedItem().toString());
         return transaccion;
     }
+    
 
     //Funcion o metodo encargado asignar valor los JTextField
-    private void setVentasForm(Ventas item) {
+    private void setComprasForm(Compras item) {
         System.out.println(item);
-        ventas.setIdVentas(item.getIdVentas());
-        gui.cbo_cliente.setSelectedItem(item.getIdCliente());
-        gui.cbo_forma_pago.setSelectedItem(item.getMetodo_pago());
+        ventas.setIdCompras(item.getIdCompras());
+        gui.cbo_proveedor.setSelectedItem(item.getIdProveedor());
         //gui.cbo_formapago.setSelected(item.getMetodo_pago());
-        gui.txt_fecha.setText(item.getFechaVenta().toString());
+        gui.txt_fecha.setText(item.getFechaCompra().toString());
     }
     
     private boolean validarDatos(){
@@ -348,20 +315,20 @@ public class VentasController implements ActionListener , KeyListener {
         gui.txt_fecha.setText(sdf.format(fechaHoy));
     }
 
-    private void llenarComboCliente(JComboBox cbo){
-        DefaultComboBoxModel<Cliente> model = new DefaultComboBoxModel();
-        List<Cliente> lista = crudCliente.listarcbo("");
+    private void llenarComboProveedor(JComboBox cbo){
+        DefaultComboBoxModel<Proveedor> model = new DefaultComboBoxModel();
+        List<Proveedor> lista = crudProveedor.listarcbo("");
         
-        Cliente seleccionar = new Cliente();
+        Proveedor seleccionar = new Proveedor();
             seleccionar.setRut("->");//Id especial
-            seleccionar.setRazonSocial("Seleccionar Cliente");
+            seleccionar.setRazonSocial("Seleccionar Proveedor");
             //seleccionar.setApellido("Usuario");
             model.addElement(seleccionar);
         
         AutoCompleteDecorator.decorate(cbo);
         for (int i = 0; i < lista.size(); i++) {
-            Cliente cliente = lista.get(i);
-            model.addElement(cliente);
+            Proveedor proveedor = lista.get(i);
+            model.addElement(proveedor);
         }
         cbo.setModel(model);
     }
@@ -370,14 +337,14 @@ public class VentasController implements ActionListener , KeyListener {
         gui.txt_iva.setText("0");
         gui.txt_descuento.setText("0");
         gui.txt_totalventas.setText("0");
-        gui.cbo_cliente.setSelectedIndex(0);
+        gui.cbo_proveedor.setSelectedIndex(0);
     }
     
     
     private boolean validarDetalle () {
         boolean vacio = false; // Si la lista no esta esta vacia: false
         String num_venta = gui.txt_factura.getText();
-        List<DetalleVentas> listadv = crud_dv.listar(num_venta); //Lista de DetalleVentas
+        List<DetalleCompras> listadv = crud_dv.listar(num_venta); //Lista de DetalleCompras
         if (listadv.isEmpty()){
             vacio = true;
         }
@@ -386,7 +353,7 @@ public class VentasController implements ActionListener , KeyListener {
     
     public void generarTicket() {
         System.out.println("Generar Ticket");
-        VentasCrudImpl dao = new VentasCrudImpl();
+        ComprasCrudImpl dao = new ComprasCrudImpl();
         // Obtener el número actual de la secuencia
         int numeroActual = dao.obtenerValorActualSecuencia();
         Integer venta_id_int = numeroActual;
@@ -396,7 +363,7 @@ public class VentasController implements ActionListener , KeyListener {
             Map<String, Object> parameters = new HashMap<>();
             parameters.put("venta_id", venta_id_int); 
             JasperReport report = JasperCompileManager.compileReport(
-                       "C:\\reportes\\ticket.jrxml");
+                       "C:\\Users\\User\\Documents\\reportes\\ticket.jrxml");
             JasperPrint print = JasperFillManager.fillReport(report, parameters, conec);
             //JasperViewer.viewReport(print, false);
             JasperViewer viewer = new JasperViewer(print, false);
@@ -405,18 +372,8 @@ public class VentasController implements ActionListener , KeyListener {
 
             
         } catch (JRException e) {
-            Logger.getLogger(GUIVentasF.class.getName()).log(Level.SEVERE, null, e);
+            Logger.getLogger(GUIComprasF.class.getName()).log(Level.SEVERE, null, e);
         }
-    }
-    
-    private Integer CalcularDescVentaGral(){
-        List<DetalleVentas> listapro = crud_dv.listar(gui.txt_factura.getText());
-        Integer descuento_gral = 0;
-        for (DetalleVentas item : listapro){
-            descuento_gral += item.getPrecio_descuento();
-        }
-        System.out.println("Descuento precio gral: " + descuento_gral);
-        return descuento_gral;
     }
     
     private void setUsuario(){
@@ -426,7 +383,7 @@ public class VentasController implements ActionListener , KeyListener {
 
     public void actVentaID(){
             // Crear instancia del DAO
-        VentasCrudImpl dao = new VentasCrudImpl();
+        ComprasCrudImpl dao = new ComprasCrudImpl();
         // Obtener el número actual de la secuencia
         int numeroActual = dao.obtenerValorActualSecuencia();
         

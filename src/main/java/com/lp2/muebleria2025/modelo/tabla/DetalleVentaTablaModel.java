@@ -8,7 +8,7 @@ import javax.swing.table.AbstractTableModel;
 public class DetalleVentaTablaModel extends AbstractTableModel {
 
     private List<DetalleVentas> lista = new ArrayList<>();
-    private String[] columnas = {"ID", "DESCRIPCION", "CANTIDAD", "PRECIO", "SUBTOTAL"};
+    private String[] columnas = {"ID", "DESCRIPCION", "CANTIDAD", "PRECIO", "SUBTOTAL", "DESCUENTO MAX"};
 
     public void setLista(List<DetalleVentas> lista) {
         this.lista = lista;
@@ -33,6 +33,7 @@ public class DetalleVentaTablaModel extends AbstractTableModel {
             case 2: return detalle_ventas.getCantidad();
             case 3: return detalle_ventas.getPrecio();
             case 4: return detalle_ventas.getSubtotal();
+            case 5: return detalle_ventas.getPrecio_descuento();
             default: return null;
         }
     }

@@ -5,7 +5,7 @@
 package com.lp2.muebleria2025.modelo.tabla;
 
 
-import com.lp2.muebleria2025.modelo.Producto;
+import com.lp2.muebleria2025.modelo.Transaccion;
 import java.util.List;
 import javax.swing.table.AbstractTableModel;
 
@@ -13,12 +13,12 @@ import javax.swing.table.AbstractTableModel;
  *
  * @author cmendieta
  */
-public class ProductoTablaModel extends AbstractTableModel {
+public class EgresosTablaModel extends AbstractTableModel {
 
-    List<Producto> lista;
-    private String[] columnas = {"ID", "NOMBRE", "PRECIO VENTA", "PRECIO COMPRA", "PRECIO VENTA (DESCUENTO)", "COMISION", "N° DE CUOTAS", "MONTO DE CUOTAS" ,"STOCK"};
+    List<Transaccion> lista;
+    private String[] columnas = {"ID", "MONTO", "FECHA", "CONCEPTO", "METODO DE PAGO", "ID OPERACION"};
 
-    public void setLista(List<Producto> lista) {
+    public void setLista(List<Transaccion> lista) {
         // Inicializamos las lista de productos
         this.lista = lista;
     }
@@ -37,26 +37,20 @@ public class ProductoTablaModel extends AbstractTableModel {
 
     @Override
     public Object getValueAt(int fila, int columna) {
-        Producto producto = lista.get(fila);
+        Transaccion transaccion = lista.get(fila);
         switch (columna) {
             case 0:
-                return producto.getId();
+                return transaccion.getId();
             case 1:
-                return producto.getNombre();
+                return transaccion.getMonto();
             case 2:
-                return producto.getPrecio();
+                return transaccion.getFecha();
             case 3:
-                return producto.getPrecio_compra();
+                return transaccion.getConcepto();
             case 4:
-                return producto.getPrecio_descuento();
+                return transaccion.getForma_pago();
             case 5:
-                return producto.getComision();
-            case 6:
-                return producto.getNro_cuotas();
-            case 7:
-                return producto.getMonto_cuotas();
-            case 8:
-                return producto.getCantidad();
+                return transaccion.getIdpago(); 
             default:
                 return null;
         }
@@ -67,7 +61,7 @@ public class ProductoTablaModel extends AbstractTableModel {
         return columnas[column];
     }
 
-    public Producto getProductoByRow(int index) {
+    public Transaccion getTransaccionByRow(int index) {
         return lista.get(index);
     }
 

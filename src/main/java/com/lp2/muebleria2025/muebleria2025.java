@@ -4,6 +4,8 @@
 
 package com.lp2.muebleria2025;
 
+import com.formdev.flatlaf.FlatDarculaLaf;
+import com.formdev.flatlaf.FlatIntelliJLaf;
 import com.formdev.flatlaf.themes.FlatMacLightLaf;
 import com.lp2.muebleria2025.vista.GUILogin;
 import javax.swing.JOptionPane;

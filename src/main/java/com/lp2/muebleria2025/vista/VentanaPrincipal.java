@@ -7,6 +7,8 @@ package com.lp2.muebleria2025.vista;
 import com.formdev.flatlaf.themes.FlatMacDarkLaf;
 import com.formdev.flatlaf.themes.FlatMacLightLaf;
 import com.lp2.muebleria2025.controlador.ClienteController;
+import com.lp2.muebleria2025.controlador.ComprasController;
+import com.lp2.muebleria2025.controlador.CuentaContableController;
 import com.lp2.muebleria2025.controlador.DetallesVentasController;
 import com.lp2.muebleria2025.controlador.IvaController;
 import com.lp2.muebleria2025.controlador.MarcaController;
@@ -18,20 +20,32 @@ import com.lp2.muebleria2025.controlador.VentasController;
 import com.lp2.muebleria2025.modelo.dao.ClienteCrudImpl;
 import com.lp2.muebleria2025.modelo.dao.DescuentosCrudImpl;
 import com.lp2.muebleria2025.controlador.DescuentosController;
+import com.lp2.muebleria2025.controlador.DetallesComprasController;
+import com.lp2.muebleria2025.controlador.DetallesVentasCuotasController;
+import com.lp2.muebleria2025.controlador.MovimientosController;
+import com.lp2.muebleria2025.controlador.PagosController;
+import com.lp2.muebleria2025.controlador.VentasCuotasController;
 import com.lp2.muebleria2025.modelo.DetalleVentas;
+import com.lp2.muebleria2025.modelo.dao.ComprasCrudImpl;
 import com.lp2.muebleria2025.modelo.dao.Conexion;
+import com.lp2.muebleria2025.modelo.dao.CuentaContableCrudImpl;
+import com.lp2.muebleria2025.modelo.dao.DetalleComprasCrudImpl;
 import com.lp2.muebleria2025.modelo.dao.DetalleVentasCrudImpl;
 import com.lp2.muebleria2025.modelo.dao.IvaCrudImpl;
 import com.lp2.muebleria2025.modelo.dao.MarcaCrudImpl;
+import com.lp2.muebleria2025.modelo.dao.PagosCrudImpl;
 import com.lp2.muebleria2025.modelo.dao.ProductoCrudImpl;
 import com.lp2.muebleria2025.modelo.dao.ProveedorCrudImpl;
+import com.lp2.muebleria2025.modelo.dao.TransaccionCrudImpl;
 import com.lp2.muebleria2025.modelo.dao.UsuarioCrudImpl;
 import com.lp2.muebleria2025.modelo.dao.VentasCrudImpl;
+import java.awt.Image;
 import java.sql.Connection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import net.sf.jasperreports.engine.JRException;
@@ -108,11 +122,16 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         jMenu5 = new javax.swing.JMenu();
         jMenuItem14 = new javax.swing.JMenuItem();
         jMenuItem15 = new javax.swing.JMenuItem();
+        jMenuItem20 = new javax.swing.JMenuItem();
+        jMenuItem49 = new javax.swing.JMenuItem();
         jMenu8 = new javax.swing.JMenu();
         jMenuItem18 = new javax.swing.JMenuItem();
+        jMenuItem22 = new javax.swing.JMenuItem();
         reportes_jMenu = new javax.swing.JMenu();
         jMenuItem16 = new javax.swing.JMenuItem();
+        jMenuItem9 = new javax.swing.JMenuItem();
         jMenuItem8 = new javax.swing.JMenuItem();
+        jMenuItem21 = new javax.swing.JMenuItem();
         jMenu7 = new javax.swing.JMenu();
         jMenuItem19 = new javax.swing.JMenuItem();
 
@@ -275,10 +294,32 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         });
         jMenu5.add(jMenuItem15);
 
+        jMenuItem20.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_B, java.awt.event.InputEvent.CTRL_DOWN_MASK));
+        jMenuItem20.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/nuevo.png"))); // NOI18N
+        jMenuItem20.setText("Ventas a Cuotas");
+        jMenuItem20.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem20ActionPerformed(evt);
+            }
+        });
+        jMenu5.add(jMenuItem20);
+
+        ImageIcon iconoOriginalpagos = new ImageIcon(getClass().getResource("/iconos/pagos_icon.png"));
+        Image imagenEscaladapagos = iconoOriginalpagos.getImage().getScaledInstance(40, 40, Image.SCALE_SMOOTH);
+        jMenuItem49.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_L, java.awt.event.InputEvent.CTRL_DOWN_MASK));
+        jMenuItem49.setIcon(new javax.swing.ImageIcon(imagenEscaladapagos));
+        jMenuItem49.setText("Cobrar Cuotas");
+        jMenuItem49.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem49ActionPerformed(evt);
+            }
+        });
+        jMenu5.add(jMenuItem49);
+
         jMenuBar1.add(jMenu5);
 
         jMenu8.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/reporte1.png"))); // NOI18N
-        jMenu8.setText("Movimientos");
+        jMenu8.setText("Contabilidad");
         jMenu8.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jMenu8.setPreferredSize(new java.awt.Dimension(130, 50));
 
@@ -291,6 +332,16 @@ public class VentanaPrincipal extends javax.swing.JFrame {
             }
         });
         jMenu8.add(jMenuItem18);
+
+        jMenuItem22.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Q, java.awt.event.InputEvent.CTRL_DOWN_MASK));
+        jMenuItem22.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/nuevo-cliente.png"))); // NOI18N
+        jMenuItem22.setText("Cuentas Contables");
+        jMenuItem22.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem22ActionPerformed(evt);
+            }
+        });
+        jMenu8.add(jMenuItem22);
 
         jMenuBar1.add(jMenu8);
 
@@ -310,6 +361,16 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         });
         reportes_jMenu.add(jMenuItem16);
 
+        jMenuItem9.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_C, java.awt.event.InputEvent.SHIFT_DOWN_MASK | java.awt.event.InputEvent.CTRL_DOWN_MASK));
+        jMenuItem9.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/historial1.png"))); // NOI18N
+        jMenuItem9.setText("Reporte Compras");
+        jMenuItem9.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem9ActionPerformed(evt);
+            }
+        });
+        reportes_jMenu.add(jMenuItem9);
+
         jMenuItem8.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_P, java.awt.event.InputEvent.SHIFT_DOWN_MASK | java.awt.event.InputEvent.CTRL_DOWN_MASK));
         jMenuItem8.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/producto.png"))); // NOI18N
         jMenuItem8.setText("Lista de Productos");
@@ -319,6 +380,16 @@ public class VentanaPrincipal extends javax.swing.JFrame {
             }
         });
         reportes_jMenu.add(jMenuItem8);
+
+        jMenuItem21.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_B, java.awt.event.InputEvent.SHIFT_DOWN_MASK | java.awt.event.InputEvent.CTRL_DOWN_MASK));
+        jMenuItem21.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/carrito.png"))); // NOI18N
+        jMenuItem21.setText("Reporte de Ventas Cuotas");
+        jMenuItem21.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem21ActionPerformed(evt);
+            }
+        });
+        reportes_jMenu.add(jMenuItem21);
 
         jMenuBar1.add(reportes_jMenu);
 
@@ -454,6 +525,14 @@ public class VentanaPrincipal extends javax.swing.JFrame {
 
     private void jMenuItem14ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem14ActionPerformed
         // TODO add your handling code here:
+        GUIComprasF ventas = new GUIComprasF();
+        ComprasCrudImpl crud = new ComprasCrudImpl();
+        ComprasController ctrl = new ComprasController(ventas, crud);
+        
+        DetalleComprasCrudImpl d_crud = new DetalleComprasCrudImpl();
+        DetallesComprasController d_ctrl = new DetallesComprasController(ventas, d_crud);   
+        
+        ctrl.mostrarVentana(); //Cabezero de Compras
     }//GEN-LAST:event_jMenuItem14ActionPerformed
 
     private void jMenu7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenu7ActionPerformed
@@ -463,8 +542,9 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     private void jMenuItem18ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem18ActionPerformed
         // TODO add your handling code here:
         GUIMovimientosF movimientos = new GUIMovimientosF();
-        movimientos.setLocationRelativeTo(movimientos);
-        movimientos.setVisible(true);
+        TransaccionCrudImpl crud = new TransaccionCrudImpl();
+        MovimientosController ctrl = new MovimientosController(movimientos, crud);
+        ctrl.mostrarVentana();
     }//GEN-LAST:event_jMenuItem18ActionPerformed
 
     private void jMenuItem16ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem16ActionPerformed
@@ -494,7 +574,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         try {
             Map<String, Object> parameters = new HashMap<>(); 
             JasperReport report = JasperCompileManager.compileReport(
-                        "C:\\Users\\User\\Documents\\reportes\\lista_productoss.jrxml");
+                        "C:\\reportes\\lista_productoss.jrxml");
             JasperPrint print = JasperFillManager.fillReport(report, parameters, conec);
             //JasperViewer.viewReport(print, false);
             JasperViewer viewer = new JasperViewer(print, false);
@@ -506,6 +586,49 @@ public class VentanaPrincipal extends javax.swing.JFrame {
             Logger.getLogger(GUIVentasF.class.getName()).log(Level.SEVERE, null, e);
         }
     }//GEN-LAST:event_jMenuItem8ActionPerformed
+
+    private void jMenuItem9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem9ActionPerformed
+        // TODO add your handling code here:
+        GUIReporteCompras gui = new GUIReporteCompras();
+        gui.setLocationRelativeTo(gui);
+        gui.setVisible(true);
+    }//GEN-LAST:event_jMenuItem9ActionPerformed
+
+    private void jMenuItem20ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem20ActionPerformed
+        // TODO add your handling code here:
+        GUIVentasCuotas ventas = new GUIVentasCuotas();
+        VentasCrudImpl crud = new VentasCrudImpl();
+        VentasCuotasController ctrl = new VentasCuotasController(ventas, crud);
+        
+        DetalleVentasCrudImpl d_crud = new DetalleVentasCrudImpl();
+        DetallesVentasCuotasController d_ctrl = new DetallesVentasCuotasController(ventas, d_crud);
+        
+        ctrl.mostrarVentana(); //Cabezero de Ventas
+    }//GEN-LAST:event_jMenuItem20ActionPerformed
+
+    private void jMenuItem49ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem49ActionPerformed
+        // TODO add your handling code here:
+        GUIPagosF pagos = new GUIPagosF();
+        PagosCrudImpl crud = new PagosCrudImpl();
+        crud.actualizar_estados();
+        PagosController ctrl = new PagosController(pagos, crud);
+        ctrl.mostrarVentana();
+    }//GEN-LAST:event_jMenuItem49ActionPerformed
+
+    private void jMenuItem21ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem21ActionPerformed
+        // TODO add your handling code here:
+        GUIVentas_Cuotas_R gui = new GUIVentas_Cuotas_R();
+        gui.setLocationRelativeTo(gui);
+        gui.setVisible(true);
+    }//GEN-LAST:event_jMenuItem21ActionPerformed
+
+    private void jMenuItem22ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem22ActionPerformed
+        // TODO add your handling code here:
+        GUICuentasContables cuenta = new GUICuentasContables(null, true);
+        CuentaContableCrudImpl crud = new CuentaContableCrudImpl();
+        CuentaContableController ctrl = new CuentaContableController(cuenta, crud);
+        ctrl.mostrarVentana();
+    }//GEN-LAST:event_jMenuItem22ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -560,12 +683,17 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     private javax.swing.JMenuItem jMenuItem18;
     private javax.swing.JMenuItem jMenuItem19;
     private javax.swing.JMenuItem jMenuItem2;
+    private javax.swing.JMenuItem jMenuItem20;
+    private javax.swing.JMenuItem jMenuItem21;
+    private javax.swing.JMenuItem jMenuItem22;
     private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JMenuItem jMenuItem4;
+    private javax.swing.JMenuItem jMenuItem49;
     private javax.swing.JMenuItem jMenuItem5;
     private javax.swing.JMenuItem jMenuItem6;
     private javax.swing.JMenuItem jMenuItem7;
     private javax.swing.JMenuItem jMenuItem8;
+    private javax.swing.JMenuItem jMenuItem9;
     private javax.swing.JMenuItem jMenu_categoria;
     private javax.swing.JMenuItem jMenu_iva;
     private javax.swing.JToggleButton jToggleButtonTema;

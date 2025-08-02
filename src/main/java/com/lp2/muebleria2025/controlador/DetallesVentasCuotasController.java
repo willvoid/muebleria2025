@@ -4,32 +4,24 @@
  */
 package com.lp2.muebleria2025.controlador;
 
+import com.ctc.wstx.shaded.msv_core.datatype.xsd.TotalDigitsFacet;
 import com.formdev.flatlaf.json.ParseException;
 import com.lp2.muebleria2025.modelo.Cliente;
 import com.lp2.muebleria2025.modelo.DetalleVentas;
+import com.lp2.muebleria2025.modelo.Pagos;
 import com.lp2.muebleria2025.modelo.Producto;
-import com.lp2.muebleria2025.modelo.Usuario;
-import com.lp2.muebleria2025.modelo.Ventas;
 import com.lp2.muebleria2025.modelo.dao.ClienteCrudImpl;
 import com.lp2.muebleria2025.modelo.dao.ProductoCrudImpl;
 import com.lp2.muebleria2025.modelo.dao.DetalleVentasCrudImpl;
-import com.lp2.muebleria2025.modelo.dao.UsuarioCrudImpl;
-import com.lp2.muebleria2025.modelo.dao.VentasCrudImpl;
+import com.lp2.muebleria2025.modelo.dao.PagosCrudImpl;
 import com.lp2.muebleria2025.modelo.tabla.DetalleVentaTablaModel;
-import com.lp2.muebleria2025.modelo.tabla.VentasTablaModel;
-import com.lp2.muebleria2025.vista.GUIVentasF;
-
-
+import com.lp2.muebleria2025.vista.GUIVentasCuotas;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -57,25 +49,23 @@ import net.sf.jasperreports.view.JasperViewer;
 import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
 import org.jdesktop.swingx.autocomplete.ObjectToStringConverter;
 
-public class DetallesVentasController implements ActionListener , KeyListener {
+public class DetallesVentasCuotasController implements ActionListener , KeyListener {
     
-    private GUIVentasF gui;
+    private GUIVentasCuotas gui;
     private DetalleVentasCrudImpl crud;
     private ProductoCrudImpl crudpro = new ProductoCrudImpl();
     private String num_venta;
     private char operacion;
     private int num_productos = 0;
     DetalleVentas d_ventas = new DetalleVentas();
-    
-    public int IdAnt = 0;
-    public int subAnt = 0;
-    public int cantAnt = 0;
+    Pagos pagos = new Pagos();
+    private final PagosCrudImpl crudp = new PagosCrudImpl();
     
     SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
     ClienteCrudImpl crudCliente = new ClienteCrudImpl();
     DetalleVentaTablaModel modelo = new DetalleVentaTablaModel();
     
-    public DetallesVentasController(GUIVentasF gui, DetalleVentasCrudImpl crud) {
+    public DetallesVentasCuotasController(GUIVentasCuotas gui, DetalleVentasCrudImpl crud) {
         this.gui = gui;
         this.crud = crud;
         this.gui.btn_añadir.addActionListener(this);
@@ -83,6 +73,7 @@ public class DetallesVentasController implements ActionListener , KeyListener {
         this.gui.btn_nuevo.addActionListener(this);
         this.gui.btn_editar.addActionListener(this);
         this.gui.btn_eliminar.addActionListener(this);
+        
         
         //this.gui.txt_buscar.addKeyListener(this);
         
@@ -97,34 +88,10 @@ public class DetallesVentasController implements ActionListener , KeyListener {
                 
                 if (detalle != null) {
                     setDetalleVentasForm(detalle);
-                    String idA = gui.txt_idproducto.getText();
-                    String subA = gui.txt_subtotal.getText();
-                    String cantA = gui.txt_cantidad_de_venta.getText();
-                    IdAnt = Integer.parseInt(idA);
-                    subAnt = Integer.parseInt(subA);
-                    cantAnt = Integer.parseInt(cantA);
+                    VaciarTextFieldCuotas();
                 } else {
                     System.out.println("Advertencia: DetalleVentas es nulo para la fila " + row);
                 }
-            }
-        });
-        
-        gui.txt_subtotal.setText("0");
-        gui.txt_descuento_n.setText("0");
-        gui.jLabel11.setVisible(false);
-        
-        gui.txt_descuento_n.getDocument().addDocumentListener(new DocumentChangeListener() {
-            @Override
-            public void onChange() {
-                Integer subtotal = Integer.valueOf(gui.txt_subtotal.getText());
-                Integer promocion = Integer.valueOf(gui.txt_descuento.getText());
-                Integer total = subtotal - promocion;  
-                String descuento_string = gui.txt_descuento_n.getText();
-                if (descuento_string.isEmpty()){
-                    gui.txt_totalventas.setText(total.toString());
-                }else{
-                    CalcularDescPersonalizado();
-                }     
             }
         });
         
@@ -142,12 +109,30 @@ public class DetallesVentasController implements ActionListener , KeyListener {
                 listar(num_venta);
             }
         });
+        
+        gui.txt_n_cuotas.getDocument().addDocumentListener(new DocumentChangeListener() {
+            @Override
+            public void onChange() {
+                String NroCuotas = gui.txt_n_cuotas.getText();
+                if (!NroCuotas.isEmpty()){
+                    CalcularMontoCuotas(NroCuotas);
+                }else{
+                    gui.txt_montoc.setText("");
+                }
+            }
+        });
+        
+        
            
         gui.txt_cantidad_de_venta.addActionListener(e -> {
             actionPerformed(e);
         });
+        /*gui.btn_calendario.addActionListener(e -> {
+            actionPerformed(e);
+        });*/
         
         gui.txt_descripcion.addActionListener(e -> {
+            
             String textoFinal = gui.txt_descripcion.getText();
             gui.txt_cantidad_de_venta.requestFocusInWindow();
             actualizarProductoPorName(textoFinal);
@@ -159,6 +144,13 @@ public class DetallesVentasController implements ActionListener , KeyListener {
                 String busqueda = gui.txt_descripcion.getText();
                 gui.jList1.setVisible(true);
                 llenarJList(gui.jList1, busqueda);  
+            }
+        });
+        
+        gui.txt_montop.getDocument().addDocumentListener(new DocumentChangeListener() {
+            @Override
+            public void onChange() {
+                CalcularSaldo();
             }
         });
         
@@ -193,26 +185,53 @@ public class DetallesVentasController implements ActionListener , KeyListener {
 
         });
         operacion = 'N';
+        gui.txt_descuento.setEnabled(false);
+        gui.txt_descuento.setVisible(false);
+        gui.jLabel12.setVisible(false);
         
-        
-        gui.txt_precio_venta.setEnabled(false);
+        gui.txt_montoc.setEnabled(false);
+        gui.txt_vencimiento.setEnabled(false);
+        gui.txt_totalventas.setEnabled(false);
+        //gui.txt_precio_venta.setEnabled(false);
+        gui.txt_descuento_n.setText("0");
         gui.txt_fecha.setEnabled(false);
         llenarJList(gui.jList1, "");
         gui.txt_precio_descuento.setVisible(false);
         gui.txt_iva.setVisible(false);
         gui.txt_fecha.setVisible(false);
-        gui.txt_idproducto.setVisible(false);
-        gui.txt_totalventas.setEnabled(false);
+        gui.txt_idproducto.setVisible(true);
+        //gui.txt_totalventas.setEnabled(false);
         gui.txt_stockdisponible.setEnabled(false);
-        gui.txt_subtotal.setEnabled(false);
         gui.txt_subtotal.setText("0");
+        gui.txt_subtotal.setEnabled(false);
         habilitarCampos(true);
         habilitarBoton(true);
         //autoCompletePro();
+        gui.txt_saldo.setEnabled(false);
         num_venta = gui.txt_factura.getText();
-        CalcularSubtotalGral();
+        
+        VaciarTextFieldCuotas();
         listar(num_venta);
         gui.tabla.getColumnModel().removeColumn(gui.tabla.getColumnModel().getColumn(5));
+        
+        
+        gui.txt_descuento_n.setText("0");
+        gui.txt_subtotal.setText("0");
+        CalcularSubtotalGral();
+        gui.txt_descuento_n.getDocument().addDocumentListener(new DocumentChangeListener() {
+            @Override
+            public void onChange() {
+                Integer subtotal = Integer.valueOf(gui.txt_subtotal.getText());
+                Integer promocion = Integer.valueOf(gui.txt_descuento.getText());
+                Integer total = subtotal - promocion;  
+                String descuento_string = gui.txt_descuento_n.getText();
+                if (descuento_string.isEmpty()){
+                    gui.txt_totalventas.setText(total.toString());
+                }else{
+                    CalcularDescPersonalizado();
+                }     
+            }
+        });
     }
 
     /*public void mostrarVentana() {
@@ -231,17 +250,6 @@ public class DetallesVentasController implements ActionListener , KeyListener {
     public void actionPerformed(ActionEvent e) {
         System.out.println("Evento click");
         
-        /*if(e.getSource()== gui.txt_buscar){
-            String valor = gui.txt_buscar.getText();
-            listar(valor);
-        }*/
-        /*if (e.getSource() == gui.btn_generar_venta){
-            GUIVentasF ventas = new GUIVentasF(null, true);
-            VentasCrudImpl crudv = new VentasCrudImpl();
-            VentasController ctrlv = new VentasController(ventas, crudv);
-            ctrlv.generarTicket();
-        }*/
-        
         if (e.getSource() == gui.btn_nuevo) {
             operacion = 'N';
             limpiar();
@@ -253,8 +261,7 @@ public class DetallesVentasController implements ActionListener , KeyListener {
             habilitarCampos(false);
             habilitarBoton(false);
             int fila = gui.tabla.getSelectedRow();
-            boolean v_control = validarDatos();
-            if (fila >= 0 && v_control == false) {
+            if (fila >= 0) {
                 int ok = JOptionPane.showConfirmDialog(gui,
                         "Realmente desea Editar el registro?", 
                         "Confirmar operacion", 
@@ -262,7 +269,6 @@ public class DetallesVentasController implements ActionListener , KeyListener {
                         JOptionPane.QUESTION_MESSAGE);
                 if (ok == 0) {
                     operacion = 'E';
-                    //crud.actualizar((DetalleVentas) modelo.getDetalleVentasByRow(fila));
                     listar(num_venta);
                     habilitarCampos(true);
                     habilitarBoton(true);
@@ -289,6 +295,7 @@ public class DetallesVentasController implements ActionListener , KeyListener {
                     crud.eliminar((DetalleVentas) modelo.getDetalleVentasByRow(fila));
                     num_productos--;
                     listar(num_venta);
+                    limpiar();
                     operacion = 'N';
                 }
             } else {
@@ -296,19 +303,30 @@ public class DetallesVentasController implements ActionListener , KeyListener {
             }
             operacion = 'N';
             CalcularSubtotalGral();
+            VaciarTextFieldCuotas();
+            CalcularSaldo();
             limpiar();
         }
         if (e.getSource() == gui.btn_cancelar) {
             //habilitarCampos(false);
             //habilitarBoton(false);
-            gui.jList1.setVisible(false);
+            gui.jList1.setVisible(true);
+            VaciarTextFieldCuotas();
             limpiar();
             operacion = 'N';
         }
         
         
         if (e.getSource() == gui.btn_añadir || e.getSource() == gui.txt_cantidad_de_venta) {
-                        boolean v_control = validarDatos();
+            String num_venta = gui.txt_factura.getText();
+            List<DetalleVentas> listadv = crud.listar(num_venta); //Lista de DetalleVentas
+            boolean v_control = validarDatos();
+            String idProducto = gui.txt_idproducto.getText();
+            if (idProducto.isEmpty()){
+                JOptionPane.showMessageDialog(gui, "Favor seleccione un Producto de la lista de busqueda para poder Añadirlo.");
+                return;
+            }
+            
             if(v_control == true){
                 JOptionPane.showMessageDialog(gui, "Favor completar los datos");
                 return;
@@ -331,7 +349,7 @@ public class DetallesVentasController implements ActionListener , KeyListener {
                     Integer cantAnterior = Integer.valueOf(gui.txt_cantidad_de_venta.getText());
                     restarStock(cantAnterior, idProductoo);
                 } catch (java.text.ParseException ex) {
-                    Logger.getLogger(DetallesVentasController.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(DetallesVentasCuotasController.class.getName()).log(Level.SEVERE, null, ex);
                 }
                 num_productos++;
                 gui.txt_descripcion.requestFocus();
@@ -342,14 +360,16 @@ public class DetallesVentasController implements ActionListener , KeyListener {
                     Integer idProductoo = Integer.valueOf(gui.txt_idproducto.getText());
                     Integer cantAnterior = Integer.valueOf(gui.txt_cantidad_de_venta.getText());
                     sumarStock(cantAnterior, idProductoo);
-                    crud.actualizar(getDetalleVentasForm());
+                    crud.actualizar_cuotass(getDetalleVentasForm());
                     restarStock(cantAnterior, idProductoo);
                 } catch (java.text.ParseException ex) {
-                    Logger.getLogger(DetallesVentasController.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(DetallesVentasCuotasController.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
             
             CalcularSubtotalGral();
+            VaciarTextFieldCuotas();
+            CalcularSaldo();
             listar(num_venta);
             limpiar();
             operacion = 'N';
@@ -376,7 +396,6 @@ public class DetallesVentasController implements ActionListener , KeyListener {
         gui.txt_precio_venta.setText("");
         gui.txt_stockdisponible.setText("");
         gui.txt_precio_descuento.setText("");
-        //gui.txt_subtotal.setText("");
     }
 
     // funcion o metodo encargado de recuperrar los valores de los JTextField en un objeto
@@ -388,23 +407,35 @@ public class DetallesVentasController implements ActionListener , KeyListener {
         d_ventas.setSubtotal(CalcularSubtotal());
         d_ventas.setPrecio_descuento(Integer.valueOf(gui.txt_precio_descuento.getText()));
         d_ventas.setProducto(gui.txt_descripcion.getText());
-//        d_ventas.setMontoCuotas(Integer.valueOf(gui.txt_subtotal.getText()));
-//        d_ventas.setMontoPagado(Integer.valueOf(gui.txt_subtotal.getText()));
-//        d_ventas.setNro_cuotas(Integer.valueOf(gui.txt_subtotal.getText()));
-//        d_ventas.setInteres(Integer.valueOf(gui.txt_subtotal.getText()));
         return d_ventas;
     }
     
+    public Pagos getPagosForm() throws java.text.ParseException {
+        try {
+            Date fecha = sdf.parse(gui.txt_vencimiento.getText()); // Convierte el texto a un Date
+            pagos.setVencimiento(fecha); // Establece la fecha como un objeto Date
+        } catch (ParseException e) {
+            JOptionPane.showMessageDialog(null, "Formato de fecha inválido. Usa el formato dd/MM/yyyy", "Error", JOptionPane.ERROR_MESSAGE);
+            return null; // O maneja el error según lo necesario
+        }
+        
+        pagos.setIdcliente((Cliente)gui.cbo_cliente.getSelectedItem());
+        pagos.setIdventa(Integer.valueOf(gui.txt_factura.getText()));
+        pagos.setMontocuota(Integer.valueOf(gui.txt_montoc.getText()));
+        pagos.setPagado(Integer.valueOf(gui.txt_montop.getText()));
+        pagos.setTotal(Integer.valueOf(gui.txt_totalventas.getText()));
+        pagos.setProducto(gui.txt_descripcion.getText());
+        return pagos;
+    }
 
     //Funcion o metodo encargado asignar valor los JTextField
     private void setDetalleVentasForm(DetalleVentas item) {
+        //List<DetalleVentas> listapro = crud.listar(num_venta);
         System.out.println(item);
         d_ventas.setId(item.getId());
         gui.txt_idproducto.setText(item.getIdproducto().toString());
         gui.txt_cantidad_de_venta.setText(item.getCantidad().toString());
-        //gui.cbo_cliente.setSelectedItem(item.getIdCliente());
-        //gui.cbo_formapago.setSelected(item.getMetodo_pago());
-        //gui.txt_fecha.setText(item.getFechaVenta().toString());
+        //gui.txt_montop.setText(item.getMontoPagado().toString());
     }
     
     private boolean validarDatos(){
@@ -426,6 +457,7 @@ public class DetallesVentasController implements ActionListener , KeyListener {
         if(gui.txt_precio_descuento.getText().isEmpty()){
             vacio = true;
         }
+        
         return vacio;
     }
 
@@ -485,6 +517,7 @@ public class DetallesVentasController implements ActionListener , KeyListener {
     
     private void actualizarProductoPorId() {
         String idText = gui.txt_idproducto.getText();
+        List<DetalleVentas> listapro = crud.listar(num_venta);
         if (!idText.isEmpty()) {
             try {
                 int idProducto = Integer.parseInt(idText);
@@ -494,13 +527,15 @@ public class DetallesVentasController implements ActionListener , KeyListener {
                     gui.txt_precio_venta.setText(producto.getPrecio().toString());
                     gui.txt_stockdisponible.setText(producto.getCantidad().toString());
                     gui.txt_precio_descuento.setText(producto.getPrecio_descuento().toString());
+                    gui.txt_montoc.setText(producto.getMontoCuotas().toString());
+                    gui.txt_n_cuotas.setText(producto.getNro_cuotas().toString());
                     gui.txt_cantidad_de_venta.requestFocus();
                 } else {
                     
                     JOptionPane.showMessageDialog(gui, "ID del Producto no encontrado");
                           
                     gui.txt_descripcion.setText("");
-                    gui.txt_precio_venta.setText("0");
+                    gui.txt_precio_venta.setText("");
                     gui.txt_cantidad_de_venta.setText("");
                 }
                 gui.jList1.setVisible(false);
@@ -509,39 +544,9 @@ public class DetallesVentasController implements ActionListener , KeyListener {
             }
         } else {
             gui.txt_descripcion.setText("");
-            gui.txt_precio_venta.setText("0");
+            gui.txt_precio_venta.setText("");
             gui.txt_cantidad_de_venta.setText("");
         }
-    }
-    
-    private void CalcularDescPersonalizado (){
-        Integer subtotal = Integer.valueOf(gui.txt_subtotal.getText());
-        Integer promocion = Integer.valueOf(gui.txt_descuento.getText());
-        Integer total = subtotal - promocion;                                 //El total es El subtotal - el descuento de productos en promocion
-        String descuento_string = gui.txt_descuento_n.getText();
-        Integer descuento_p = Integer.valueOf(descuento_string);
-        try{
-            if (descuento_p > total){
-               JOptionPane.showMessageDialog(gui, "El descuento no puede ser mayor al Total.");
-               gui.txt_descuento_n.requestFocus();
-               return;
-            }
-            if (descuento_p < 0){
-               JOptionPane.showMessageDialog(gui, "El descuento no puede ser Negativo.");
-               gui.txt_descuento_n.setText("");
-               gui.txt_descuento_n.requestFocus();
-               return;
-            }
-            if (descuento_string.isEmpty()){
-                gui.txt_totalventas.setText(total.toString());
-            }else{
-              Integer total_nuevo = total - descuento_p;
-              gui.txt_totalventas.setText(total_nuevo.toString());  
-            }         
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(gui, "Descuento Inválido. Introduzca un número válido");
-            gui.txt_descuento_n.setText("");
-        } 
     }
     
     private void restarStock(Integer cantAnterior, Integer idProducto){
@@ -596,6 +601,57 @@ public class DetallesVentasController implements ActionListener , KeyListener {
         }
     }
     
+    private void CalcularMontoCuotas (String NroCuotas){
+        try{
+            Integer NroCuotasInt = Integer.valueOf(NroCuotas);
+            if (NroCuotasInt <= 0){
+                JOptionPane.showMessageDialog(gui, "El Nro de Cuotas no puede ser Cero o Menor a Cero.");
+                gui.txt_n_cuotas.setText("");
+                gui.txt_n_cuotas.requestFocus();
+                return;
+            }
+            
+            
+            Integer Saldo = Integer.valueOf(gui.txt_saldo.getText());
+            Integer MontoCuotas = Saldo/NroCuotasInt;
+            gui.txt_montoc.setText(MontoCuotas.toString());
+            
+        }catch (NumberFormatException ex){
+            JOptionPane.showMessageDialog(gui, "Favor Introducir un Número válido en la Cantidad de Cuotas.");
+        }
+    }
+    
+    private void CalcularDescPersonalizado (){
+        Integer subtotal = Integer.valueOf(gui.txt_subtotal.getText());
+        Integer promocion = Integer.valueOf(gui.txt_descuento.getText());
+        Integer total = subtotal - promocion;                                 //El total es El subtotal - el descuento de productos en promocion
+        String descuento_string = gui.txt_descuento_n.getText();
+        Integer descuento_p = Integer.valueOf(descuento_string);
+        try{
+            if (descuento_p > total){
+               JOptionPane.showMessageDialog(gui, "El descuento no puede ser mayor al Total.");
+               gui.txt_descuento_n.requestFocus();
+               return;
+            }
+            if (descuento_p < 0){
+               JOptionPane.showMessageDialog(gui, "El descuento no puede ser Negativo.");
+               gui.txt_descuento_n.setText("");
+               gui.txt_descuento_n.requestFocus();
+               return;
+            }
+            if (descuento_string.isEmpty()){
+                gui.txt_totalventas.setText(total.toString());
+            }else{
+              Integer total_nuevo = total - descuento_p;
+              gui.txt_totalventas.setText(total_nuevo.toString());
+              CalcularSaldo();  
+            }         
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(gui, "Descuento Inválido. Introduzca un número válido");
+            gui.txt_descuento_n.setText("");
+        } 
+    }
+    
     private Integer CalcularSubtotal(){
         String cantidad = gui.txt_cantidad_de_venta.getText();
         String precio = gui.txt_precio_venta.getText();
@@ -624,6 +680,44 @@ public class DetallesVentasController implements ActionListener , KeyListener {
         gui.txt_totalventas.setText(total.toString());
     }
     
+    private void VaciarTextFieldCuotas(){ //Este metodo limpiara los textfields si la lista es mayor a 1
+        List <DetalleVentas> listPro = crud.listar(num_venta);
+        if (listPro.size() > 1){
+            gui.txt_montoc.setText("");
+            gui.txt_n_cuotas.setText("");
+        }else if (listPro.isEmpty()){
+            gui.txt_montoc.setText("");
+            gui.txt_n_cuotas.setText("");
+            gui.txt_saldo.setText("0");
+            gui.txt_montop.setText("");
+            gui.txt_n_cuotas.setText("");
+            gui.txt_montoc.setText("");
+            gui.txt_descuento_n.setText("");
+            gui.txt_descuento_n.setText("");
+            gui.txt_vencimiento.setText("");
+        }
+    }
+    
+    private void CalcularSaldo(){
+        Integer saldo = 0;
+        try{
+            String PagadoStr = gui.txt_montop.getText();
+            Integer total = Integer.valueOf(gui.txt_totalventas.getText());
+       
+            if (!PagadoStr.isEmpty()){
+                Integer PagadoInt = Integer.valueOf(PagadoStr);
+                saldo = total - PagadoInt;
+            }else{
+                saldo = total;
+            }    
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(gui, "Monto Pagado Inválido. Introduzca un número");
+            gui.txt_montop.setText("");
+            gui.txt_montop.requestFocus();
+        }
+        gui.txt_saldo.setText(saldo.toString());
+        gui.txt_n_cuotas.setText(""); //Para que no afecte a el Nro de Cuotas
+    }
     
     @Override
     public void keyTyped(KeyEvent e) {

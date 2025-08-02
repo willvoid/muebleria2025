@@ -24,7 +24,7 @@ public class GUIMovimientosF extends javax.swing.JFrame {
     public GUIMovimientosF() {
         initComponents();
         setDefaultCloseOperation(this.DISPOSE_ON_CLOSE);
-        this.setTitle("NUEVA VENTA CONTADO");
+        this.setTitle("MOVIMIENTOS");
     }
 
     /**
@@ -50,8 +50,6 @@ public class GUIMovimientosF extends javax.swing.JFrame {
         panel_egresos = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
         table_egresos = new javax.swing.JTable();
-        panel_cobrar = new javax.swing.JPanel();
-        panel_pagar = new javax.swing.JPanel();
         jLayeredPane3 = new javax.swing.JLayeredPane();
         btn_calendar3 = new javax.swing.JButton();
         txt_desde = new javax.swing.JTextField();
@@ -120,8 +118,8 @@ public class GUIMovimientosF extends javax.swing.JFrame {
             panel_ingresosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panel_ingresosLayout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 260, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 252, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(14, 14, 14))
         );
 
         jTabbedPane1.addTab("Ingresos", panel_ingresos);
@@ -156,32 +154,6 @@ public class GUIMovimientosF extends javax.swing.JFrame {
         );
 
         jTabbedPane1.addTab("Egresos", panel_egresos);
-
-        javax.swing.GroupLayout panel_cobrarLayout = new javax.swing.GroupLayout(panel_cobrar);
-        panel_cobrar.setLayout(panel_cobrarLayout);
-        panel_cobrarLayout.setHorizontalGroup(
-            panel_cobrarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 1185, Short.MAX_VALUE)
-        );
-        panel_cobrarLayout.setVerticalGroup(
-            panel_cobrarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 228, Short.MAX_VALUE)
-        );
-
-        jTabbedPane1.addTab("Por Cobrar", panel_cobrar);
-
-        javax.swing.GroupLayout panel_pagarLayout = new javax.swing.GroupLayout(panel_pagar);
-        panel_pagar.setLayout(panel_pagarLayout);
-        panel_pagarLayout.setHorizontalGroup(
-            panel_pagarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 1185, Short.MAX_VALUE)
-        );
-        panel_pagarLayout.setVerticalGroup(
-            panel_pagarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 228, Short.MAX_VALUE)
-        );
-
-        jTabbedPane1.addTab("Por Pagar", panel_pagar);
 
         ImageIcon iconoOriginal = new ImageIcon(getClass().getResource("/iconos/calendar_month_16dp_789DE5_FILL0_wght400_GRAD0_opsz20.png"));
         Image imagenEscalada = iconoOriginal.getImage().getScaledInstance(20, 20, Image.SCALE_SMOOTH); // Tamaño 32x32
@@ -227,13 +199,10 @@ public class GUIMovimientosF extends javax.swing.JFrame {
         lp_gastosLayout.setHorizontalGroup(
             lp_gastosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(lp_gastosLayout.createSequentialGroup()
+                .addGap(74, 74, 74)
                 .addGroup(lp_gastosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(lp_gastosLayout.createSequentialGroup()
-                        .addGap(109, 109, 109)
-                        .addComponent(lb_gastos))
-                    .addGroup(lp_gastosLayout.createSequentialGroup()
-                        .addGap(74, 74, 74)
-                        .addComponent(jLabel5)))
+                    .addComponent(lb_gastos)
+                    .addComponent(jLabel5))
                 .addContainerGap(85, Short.MAX_VALUE))
         );
         lp_gastosLayout.setVerticalGroup(
@@ -273,7 +242,7 @@ public class GUIMovimientosF extends javax.swing.JFrame {
                     .addGroup(lp_ventasLayout.createSequentialGroup()
                         .addGap(21, 21, 21)
                         .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(35, 35, 35)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(lb_ventas)))
                 .addContainerGap(84, Short.MAX_VALUE))
         );
@@ -281,14 +250,11 @@ public class GUIMovimientosF extends javax.swing.JFrame {
             lp_ventasLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(lp_ventasLayout.createSequentialGroup()
                 .addComponent(jLabel1)
-                .addGroup(lp_ventasLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(lp_ventasLayout.createSequentialGroup()
-                        .addGap(16, 16, 16)
-                        .addComponent(lb_ventas))
-                    .addGroup(lp_ventasLayout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(0, 0, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(lp_ventasLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(lb_ventas))
+                .addGap(0, 23, Short.MAX_VALUE))
         );
 
         lp_balance.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
@@ -312,12 +278,13 @@ public class GUIMovimientosF extends javax.swing.JFrame {
             .addGroup(lp_balanceLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jLabel4)
-                .addGap(66, 66, 66)
                 .addGroup(lp_balanceLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(lp_balanceLayout.createSequentialGroup()
-                        .addGap(15, 15, 15)
-                        .addComponent(lb_balance))
-                    .addComponent(jLabel2))
+                        .addGap(66, 66, 66)
+                        .addComponent(jLabel2))
+                    .addGroup(lp_balanceLayout.createSequentialGroup()
+                        .addGap(57, 57, 57)
+                        .addComponent(lb_balance)))
                 .addContainerGap(97, Short.MAX_VALUE))
         );
         lp_balanceLayout.setVerticalGroup(
@@ -356,7 +323,7 @@ public class GUIMovimientosF extends javax.swing.JFrame {
         jLayeredPane3Layout.setHorizontalGroup(
             jLayeredPane3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jLayeredPane3Layout.createSequentialGroup()
-                .addGap(36, 36, 36)
+                .addContainerGap()
                 .addComponent(jLabel6)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(txt_desde, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -379,7 +346,7 @@ public class GUIMovimientosF extends javax.swing.JFrame {
                 .addComponent(lp_ventas, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(49, 49, 49)
                 .addComponent(lp_gastos, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
+                .addGap(0, 77, Short.MAX_VALUE))
         );
         jLayeredPane3Layout.setVerticalGroup(
             jLayeredPane3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -398,7 +365,7 @@ public class GUIMovimientosF extends javax.swing.JFrame {
                     .addGroup(jLayeredPane3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(txt_buscar1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(jLabel3)))
-                .addGap(42, 42, 42)
+                .addGap(41, 41, 41)
                 .addGroup(jLayeredPane3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(lp_balance, javax.swing.GroupLayout.DEFAULT_SIZE, 92, Short.MAX_VALUE)
                     .addComponent(lp_ventas, javax.swing.GroupLayout.DEFAULT_SIZE, 92, Short.MAX_VALUE)
@@ -427,9 +394,9 @@ public class GUIMovimientosF extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addGap(11, 11, 11)
                 .addComponent(jLayeredPane3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 17, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 43, Short.MAX_VALUE)
                 .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 266, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(39, 39, 39))
+                .addGap(14, 14, 14))
         );
 
         pack();
@@ -535,10 +502,8 @@ public class GUIMovimientosF extends javax.swing.JFrame {
     public javax.swing.JLayeredPane lp_balance;
     public javax.swing.JLayeredPane lp_gastos;
     public javax.swing.JLayeredPane lp_ventas;
-    public javax.swing.JPanel panel_cobrar;
     public javax.swing.JPanel panel_egresos;
     public javax.swing.JPanel panel_ingresos;
-    private javax.swing.JPanel panel_pagar;
     public javax.swing.JTable table_egresos;
     public javax.swing.JTable table_ingresos;
     public javax.swing.JTextField txt_buscar;

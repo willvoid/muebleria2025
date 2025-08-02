@@ -6,14 +6,12 @@ package com.lp2.muebleria2025.modelo;
 
 /**
  *
- * @author cmendieta
+ * @author Windows 11
  */
-public class Marca {
+public class CuentaContable {
     private Integer id;
     private String nombre;
-
-    public Marca() {
-    }
+    private String tipo;
 
     public Integer getId() {
         return id;
@@ -30,24 +28,13 @@ public class Marca {
     public void setNombre(String nombre) {
         this.nombre = nombre;
     }
-    
-   
 
-    @Override
-    public String toString() {
-        return id + " - "+nombre;
+    public String getTipo() {
+        return tipo;
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        Integer cod1 = getId();
-        Integer cod2 = ((Marca)obj).getId();
-        if(cod1.equals(cod2)) return true;
-        return false;
+    public void setTipo(String tipo) {
+        this.tipo = tipo;
     }
-    
-    
-    
-    
     
 }

@@ -18,6 +18,7 @@ public class Ventas {
     private String metodo_pago;
     private Integer total;
     private String estado;
+    private Integer descuento;
 
     public Integer getIdVentas() {
         return idVentas;
@@ -74,6 +75,13 @@ public class Ventas {
     public void setEstado(String estado) {
         this.estado = estado;
     }
-    
+
+    public Integer getDescuento() {
+        return descuento;
+    }
+
+    public void setDescuento(Integer descuento) {
+        this.descuento = descuento;
+    }
     
 }
