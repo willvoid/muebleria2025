@@ -57,6 +57,8 @@ public class DetallesVentasCuotasController implements ActionListener , KeyListe
     private String num_venta;
     private char operacion;
     private int num_productos = 0;
+    private Integer id_del_producto;
+    private Integer cantidad_anterior;
     DetalleVentas d_ventas = new DetalleVentas();
     Pagos pagos = new Pagos();
     private final PagosCrudImpl crudp = new PagosCrudImpl();
@@ -199,7 +201,7 @@ public class DetallesVentasCuotasController implements ActionListener , KeyListe
         gui.txt_precio_descuento.setVisible(false);
         gui.txt_iva.setVisible(false);
         gui.txt_fecha.setVisible(false);
-        gui.txt_idproducto.setVisible(true);
+        gui.txt_idproducto.setVisible(false);
         //gui.txt_totalventas.setEnabled(false);
         gui.txt_stockdisponible.setEnabled(false);
         gui.txt_subtotal.setText("0");
@@ -269,10 +271,16 @@ public class DetallesVentasCuotasController implements ActionListener , KeyListe
                         JOptionPane.QUESTION_MESSAGE);
                 if (ok == 0) {
                     operacion = 'E';
+                    Integer idProductoo = Integer.valueOf(gui.txt_idproducto.getText());
+                    id_del_producto = idProductoo;
+                    Integer cantAnterior = Integer.valueOf(gui.txt_cantidad_de_venta.getText());
+                    cantidad_anterior = cantAnterior;
+                    sumarStock(cantidad_anterior, id_del_producto);
                     listar(num_venta);
                     habilitarCampos(true);
                     habilitarBoton(true);
                     gui.txt_descripcion.requestFocus();
+                    actualizarProductoPorName(gui.txt_descripcion.getText());
                 }
             } else {
                 JOptionPane.showMessageDialog(gui, "Debe seleccionar una fila");
@@ -308,12 +316,18 @@ public class DetallesVentasCuotasController implements ActionListener , KeyListe
             limpiar();
         }
         if (e.getSource() == gui.btn_cancelar) {
-            //habilitarCampos(false);
-            //habilitarBoton(false);
-            gui.jList1.setVisible(true);
-            VaciarTextFieldCuotas();
-            limpiar();
-            operacion = 'N';
+            if (operacion== 'E'){
+                restarStock(cantidad_anterior, id_del_producto);
+                gui.jList1.setVisible(false);
+                limpiar();
+                operacion = 'N';
+                cantidad_anterior = null;
+                id_del_producto = null;
+            }else{
+                gui.jList1.setVisible(false);
+                limpiar();
+                operacion = 'N';
+            }
         }
         
         
@@ -359,7 +373,6 @@ public class DetallesVentasCuotasController implements ActionListener , KeyListe
                 try {
                     Integer idProductoo = Integer.valueOf(gui.txt_idproducto.getText());
                     Integer cantAnterior = Integer.valueOf(gui.txt_cantidad_de_venta.getText());
-                    sumarStock(cantAnterior, idProductoo);
                     crud.actualizar_cuotass(getDetalleVentasForm());
                     restarStock(cantAnterior, idProductoo);
                 } catch (java.text.ParseException ex) {
@@ -603,13 +616,25 @@ public class DetallesVentasCuotasController implements ActionListener , KeyListe
     
     private void CalcularMontoCuotas (String NroCuotas){
         try{
+            if (NroCuotas.isEmpty()){
+                //gui.txt_n_cuotas.setText("");
+                System.out.println("N cuotas vacio");
+                return;
+            }
             Integer NroCuotasInt = Integer.valueOf(NroCuotas);
-            if (NroCuotasInt <= 0){
-                JOptionPane.showMessageDialog(gui, "El Nro de Cuotas no puede ser Cero o Menor a Cero.");
-                gui.txt_n_cuotas.setText("");
+            
+            if (NroCuotasInt == 0){
+                System.out.println("N cuotas 0");
+                return;
+            }
+            
+            if (NroCuotasInt < 0){
+                JOptionPane.showMessageDialog(gui, "El Nro de Cuotas no puede ser Menor a Cero.");
+                //gui.txt_n_cuotas.setText("");
                 gui.txt_n_cuotas.requestFocus();
                 return;
             }
+            
             
             
             Integer Saldo = Integer.valueOf(gui.txt_saldo.getText());
@@ -649,6 +674,7 @@ public class DetallesVentasCuotasController implements ActionListener , KeyListe
         } catch (NumberFormatException ex) {
             JOptionPane.showMessageDialog(gui, "Descuento Inválido. Introduzca un número válido");
             gui.txt_descuento_n.setText("");
+            gui.txt_descuento.requestFocus();
         } 
     }
     
@@ -692,8 +718,7 @@ public class DetallesVentasCuotasController implements ActionListener , KeyListe
             gui.txt_montop.setText("");
             gui.txt_n_cuotas.setText("");
             gui.txt_montoc.setText("");
-            gui.txt_descuento_n.setText("");
-            gui.txt_descuento_n.setText("");
+            gui.txt_descuento_n.setText("0");
             gui.txt_vencimiento.setText("");
         }
     }
@@ -716,7 +741,9 @@ public class DetallesVentasCuotasController implements ActionListener , KeyListe
             gui.txt_montop.requestFocus();
         }
         gui.txt_saldo.setText(saldo.toString());
-        gui.txt_n_cuotas.setText(""); //Para que no afecte a el Nro de Cuotas
+        
+        String NroCuotas = gui.txt_n_cuotas.getText();
+        CalcularMontoCuotas(NroCuotas); //Cada vez que se ajuste el saldo no afectara al monto de las cuotas
     }
     
     @Override

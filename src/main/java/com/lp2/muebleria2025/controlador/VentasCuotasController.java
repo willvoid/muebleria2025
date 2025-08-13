@@ -90,6 +90,7 @@ public class VentasCuotasController implements ActionListener , KeyListener {
         this.gui.btn_editar.addActionListener(this);
         this.gui.btn_eliminar.addActionListener(this);
         this.gui.btn_generar_venta.addActionListener(this);
+        this.gui.cbo_usuario.addActionListener(this);
         //this.gui.txt_buscar.addKeyListener(this);
         
         gui.addWindowListener(new WindowAdapter() {
@@ -117,7 +118,7 @@ public class VentasCuotasController implements ActionListener , KeyListener {
             }
         });
         llenarComboCliente(gui.cbo_cliente);
-        //llenarComboUsuario(gui.cbo_usuario);
+        llenarComboUsuario(gui.cbo_usuario);
         
         setFechaAct();
         operacion = 'N';
@@ -125,9 +126,11 @@ public class VentasCuotasController implements ActionListener , KeyListener {
         habilitarCampos(true);
         habilitarBoton(true);
         gui.txt_idusuario.setVisible(false);
-        gui.cbo_usuario.setVisible(false);
+        gui.cbo_usuario.setVisible(true);
+        gui.txt_idproducto.setVisible(false);
         gui.lbl_nombre.setText(UsuarioCrudImpl.nombre+ " " + UsuarioCrudImpl.apellido);
-        setUsuario();
+        gui.lbl_nombre.setVisible(false);
+        //setUsuario();
         actVentaID();
         Conexion conectar = new Conexion();//Conexion a la BD
         conec = conectar.conectarBD();
@@ -145,7 +148,7 @@ public class VentasCuotasController implements ActionListener , KeyListener {
         
         
         
-        ////////listar("");
+        //listar("");
     }
 
     public void mostrarVentana() {
@@ -175,6 +178,13 @@ public class VentasCuotasController implements ActionListener , KeyListener {
              habilitarBoton(true);
             gui.cbo_cliente.requestFocus();
         }*/
+        
+        Usuario seleccionado = (Usuario) gui.cbo_usuario.getSelectedItem();
+        if (seleccionado != null && seleccionado.getId() != 0) { // Para evitar "Seleccionar Usuario"
+            gui.txt_idusuario.setText(String.valueOf(seleccionado.getId()));
+        } else {
+            gui.txt_idusuario.setText("");
+        }
        
         
         if (e.getSource() == gui.btn_generar_venta) {
@@ -218,6 +228,14 @@ public class VentasCuotasController implements ActionListener , KeyListener {
                 return;
             }
             
+            Integer NroCuotasInt = Integer.valueOf(gui.txt_n_cuotas.getText());
+            
+            if(NroCuotasInt <= 0){
+                JOptionPane.showMessageDialog(gui, "El número de Cuotas no debe ser Cero o menor a cero.");
+                gui.txt_n_cuotas.requestFocus();
+                return;
+            }
+            
             if(gui.txt_vencimiento.getText().isEmpty()){
                 JOptionPane.showMessageDialog(gui, "La Fecha de Vencimiento no debe estar vacía.");
                 gui.btn_calendario.requestFocus();
@@ -228,6 +246,14 @@ public class VentasCuotasController implements ActionListener , KeyListener {
             if (descuento.isEmpty()){
                 JOptionPane.showMessageDialog(gui, "El descuento no debe estar vacío.");
                 gui.txt_descuento_n.requestFocus();
+                return;
+            }
+            
+            String iduser = gui.txt_idusuario.getText();
+            
+            if (iduser.isEmpty()){
+                JOptionPane.showMessageDialog(gui, "Seleccione un vendedor válido.");
+                gui.cbo_usuario.requestFocus();
                 return;
             }
             
@@ -447,6 +473,8 @@ public class VentasCuotasController implements ActionListener , KeyListener {
         gui.cbo_cliente.setSelectedIndex(0);
         gui.txt_saldo.setText("");
         gui.txt_montop.setText("");
+        gui.txt_n_cuotas.setText("");
+        gui.txt_vencimiento.setText("");
     }
     
     
@@ -462,26 +490,27 @@ public class VentasCuotasController implements ActionListener , KeyListener {
     
     public void generarTicket() {
         System.out.println("Generar Ticket");
-            VentasCrudImpl dao = new VentasCrudImpl();
-            // Obtener el número actual de la secuencia
-            int numeroActual = dao.obtenerValorActualSecuencia();
-            Integer venta_id_int = numeroActual;
-            try {
-                //String venta_id = gui.txt_factura.getText();
-                System.out.println(venta_id_int);
-                Map<String, Object> parameters = new HashMap<>();
-                parameters.put("SUBREPORT_DIR", "C:\\reportes\\");
-                parameters.put("venta_id", numeroActual); 
-                JasperReport report = JasperCompileManager.compileReport(
-                           "C:\\reportes\\ticket_mueble_cuotas.jrxml");
-                JasperPrint print = JasperFillManager.fillReport(report, parameters, conec);
-                //JasperViewer.viewReport(print, false);
-                JasperViewer viewer = new JasperViewer(print, false);
-                viewer.setAlwaysOnTop(true); //Muestra la ventana en frente
-                viewer.setVisible(true);
-            } catch (JRException ex) {
-                Logger.getLogger(GUIVentasF.class.getName()).log(Level.SEVERE, null, ex);
-            }
+        VentasCrudImpl dao = new VentasCrudImpl();
+        // Obtener el número actual de la secuencia
+        int numeroActual = dao.obtenerValorActualSecuencia();
+        Integer venta_id_int = numeroActual;
+        try {
+            //String venta_id = gui.txt_factura.getText();
+            System.out.println(venta_id_int);
+            Map<String, Object> parameters = new HashMap<>();
+            parameters.put("venta_id", venta_id_int); 
+            JasperReport report = JasperCompileManager.compileReport(
+                       "C:\\reportes\\ticket.jrxml");
+            JasperPrint print = JasperFillManager.fillReport(report, parameters, conec);
+            //JasperViewer.viewReport(print, false);
+            JasperViewer viewer = new JasperViewer(print, false);
+            viewer.setAlwaysOnTop(true); //Muestra la ventana en frente
+            viewer.setVisible(true);
+
+            
+        } catch (JRException e) {
+            Logger.getLogger(GUIVentasF.class.getName()).log(Level.SEVERE, null, e);
+        }
     }
     
     private Integer CalcularDescVentaGral(){
@@ -516,7 +545,7 @@ public class VentasCuotasController implements ActionListener , KeyListener {
             Usuario seleccionar = new Usuario();
             seleccionar.setId(0);//Id especial
             seleccionar.setNombre("Seleccionar");
-            seleccionar.setApellido("Usuario");
+            seleccionar.setApellido("Vendedor");
             model.addElement(seleccionar);
             
             AutoCompleteDecorator.decorate(cbo);

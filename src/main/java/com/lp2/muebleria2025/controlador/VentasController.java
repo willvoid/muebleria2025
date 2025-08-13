@@ -83,6 +83,7 @@ public class VentasController implements ActionListener , KeyListener {
         this.gui.btn_editar.addActionListener(this);
         this.gui.btn_eliminar.addActionListener(this);
         this.gui.btn_generar_venta.addActionListener(this);
+        this.gui.cbo_usuario.addActionListener(this);
         //this.gui.txt_buscar.addKeyListener(this);
         
         gui.addWindowListener(new WindowAdapter() {
@@ -110,7 +111,7 @@ public class VentasController implements ActionListener , KeyListener {
             }
         });
         llenarComboCliente(gui.cbo_cliente);
-        //llenarComboUsuario(gui.cbo_usuario);
+        llenarComboUsuario(gui.cbo_usuario);
         gui.txt_descuento.setEnabled(false);
         gui.txt_descuento.setVisible(false);
         setFechaAct();
@@ -118,10 +119,11 @@ public class VentasController implements ActionListener , KeyListener {
         gui.btn_nuevo.setVisible(false);
         habilitarCampos(true);
         habilitarBoton(true);
-        gui.txt_idusuario.setVisible(false);
-        gui.cbo_usuario.setVisible(false);
+        gui.txt_idusuario.setVisible(true);
+        gui.cbo_usuario.setVisible(true);
         gui.lbl_nombre.setText(UsuarioCrudImpl.nombre+ " " + UsuarioCrudImpl.apellido);
-        setUsuario();
+        gui.lbl_nombre.setVisible(false);
+        //setUsuario();
         actVentaID();
         Conexion conectar = new Conexion();//Conexion a la BD
         conec = conectar.conectarBD();
@@ -170,6 +172,13 @@ public class VentasController implements ActionListener , KeyListener {
              habilitarBoton(true);
             gui.cbo_cliente.requestFocus();
         }*/
+        
+        Usuario seleccionado = (Usuario) gui.cbo_usuario.getSelectedItem();
+        if (seleccionado != null && seleccionado.getId() != 0) { // Para evitar "Seleccionar Usuario"
+            gui.txt_idusuario.setText(String.valueOf(seleccionado.getId()));
+        } else {
+            gui.txt_idusuario.setText("");
+        }
        
         
         if (e.getSource() == gui.btn_generar_venta) {
@@ -192,6 +201,14 @@ public class VentasController implements ActionListener , KeyListener {
                JOptionPane.showMessageDialog(gui, "El descuento no puede estar vacío.");
                gui.txt_descuento_n.requestFocus();
                return;
+            }
+            
+            String iduser = gui.txt_idusuario.getText();
+            
+            if (iduser.isEmpty()){
+                JOptionPane.showMessageDialog(gui, "Seleccione un vendedor válido.");
+                gui.cbo_usuario.requestFocus();
+                return;
             }
             
             boolean v_control = validarDatos();
@@ -440,7 +457,7 @@ public class VentasController implements ActionListener , KeyListener {
             Usuario seleccionar = new Usuario();
             seleccionar.setId(0);//Id especial
             seleccionar.setNombre("Seleccionar");
-            seleccionar.setApellido("Usuario");
+            seleccionar.setApellido("Vendedor");
             model.addElement(seleccionar);
             
             AutoCompleteDecorator.decorate(cbo);

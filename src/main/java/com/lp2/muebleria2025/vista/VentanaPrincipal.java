@@ -85,6 +85,9 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         
         this.jMenu_iva.setVisible(false);
         this.jMenu_iva.setEnabled(false);
+        
+        this.promo_item.setVisible(false);
+        this.promo_item.setEnabled(false);
         System.out.println(UsuarioCrudImpl.rol_usuario);
         Conexion conectar = new Conexion();
         conec = conectar.conectarBD();
@@ -118,7 +121,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         jMenuItem7 = new javax.swing.JMenuItem();
         jMenu_iva = new javax.swing.JMenuItem();
         jMenu_categoria = new javax.swing.JMenuItem();
-        jMenuItem17 = new javax.swing.JMenuItem();
+        promo_item = new javax.swing.JMenuItem();
         jMenu5 = new javax.swing.JMenu();
         jMenuItem14 = new javax.swing.JMenuItem();
         jMenuItem15 = new javax.swing.JMenuItem();
@@ -257,15 +260,15 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         });
         producto_jMenu.add(jMenu_categoria);
 
-        jMenuItem17.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_D, java.awt.event.InputEvent.CTRL_DOWN_MASK));
-        jMenuItem17.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/configuraciones.png"))); // NOI18N
-        jMenuItem17.setText("Descuentos");
-        jMenuItem17.addActionListener(new java.awt.event.ActionListener() {
+        promo_item.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_D, java.awt.event.InputEvent.CTRL_DOWN_MASK));
+        promo_item.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/configuraciones.png"))); // NOI18N
+        promo_item.setText("Descuentos");
+        promo_item.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem17ActionPerformed(evt);
+                promo_itemActionPerformed(evt);
             }
         });
-        producto_jMenu.add(jMenuItem17);
+        producto_jMenu.add(promo_item);
 
         jMenuBar1.add(producto_jMenu);
 
@@ -515,13 +518,13 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         ctrl.mostrarVentana(); //Cabezero de Ventas
     }//GEN-LAST:event_jMenuItem15ActionPerformed
 
-    private void jMenuItem17ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem17ActionPerformed
+    private void promo_itemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_promo_itemActionPerformed
         // TODO add your handling code here:
         GUIDescuentos descuento = new GUIDescuentos(null, true);
         DescuentosCrudImpl crud = new DescuentosCrudImpl();
         DescuentosController ctrl = new DescuentosController(descuento, crud);
         ctrl.mostrarVentana();
-    }//GEN-LAST:event_jMenuItem17ActionPerformed
+    }//GEN-LAST:event_promo_itemActionPerformed
 
     private void jMenuItem14ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem14ActionPerformed
         // TODO add your handling code here:
@@ -679,7 +682,6 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     private javax.swing.JMenuItem jMenuItem14;
     private javax.swing.JMenuItem jMenuItem15;
     private javax.swing.JMenuItem jMenuItem16;
-    private javax.swing.JMenuItem jMenuItem17;
     private javax.swing.JMenuItem jMenuItem18;
     private javax.swing.JMenuItem jMenuItem19;
     private javax.swing.JMenuItem jMenuItem2;
@@ -698,6 +700,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     private javax.swing.JMenuItem jMenu_iva;
     private javax.swing.JToggleButton jToggleButtonTema;
     private javax.swing.JMenu producto_jMenu;
+    private javax.swing.JMenuItem promo_item;
     private javax.swing.JMenu proveedores_jMenu;
     private javax.swing.JMenu reportes_jMenu;
     private javax.swing.JMenu usuario_jmenu;

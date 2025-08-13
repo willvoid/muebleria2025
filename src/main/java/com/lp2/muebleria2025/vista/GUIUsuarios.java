@@ -47,7 +47,7 @@ public class GUIUsuarios extends javax.swing.JDialog {
         btn_eliminar = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setTitle("                                                                                                                               CLIENTES");
+        setTitle("USUARIOS REGISTRADOS");
 
         tabla.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
         tabla.setModel(new javax.swing.table.DefaultTableModel(

@@ -15,7 +15,7 @@ import javax.swing.table.AbstractTableModel;
 public class PagosTablaModel extends AbstractTableModel {
     //private Integer cuotas_pagadas = 0; 
     List<Pagos> lista;
-    private String[] columnas = {"ID", "NOMBRE", "CI/RUC" , "CELULAR", "ID VENTA","PRODUCTO","TOTAL","MONTO CUOTAS","T. CUOTAS","CUOTAS PAGADAS","PAGADO","SALDO", "VENCIMIENTO","ESTADO"};
+    private String[] columnas = {"ID VENTA", "NOMBRE", "CI/RUC" , "CELULAR","PRODUCTO","TOTAL","MONTO CUOTAS","T. CUOTAS","CUOTAS PAGADAS","PAGADO","SALDO", "VENCIMIENTO","ESTADO"};
 
     public void setLista(List<Pagos> lista) {
         // Inicializamos las lista de productos
@@ -39,7 +39,7 @@ public class PagosTablaModel extends AbstractTableModel {
         Pagos pagos= lista.get(fila);
         switch (columna) {
             case 0:
-                return pagos.getIdpagos();
+                return pagos.getIdventa();
             case 1:
                 return pagos.getIdcliente().getRazonSocial();
             case 2:
@@ -47,25 +47,23 @@ public class PagosTablaModel extends AbstractTableModel {
             case 3:
                 return pagos.getIdcliente().getTelefono();
             case 4:
-                return pagos.getIdventa();
-            case 5:
                 return pagos.getProducto();
-            case 6:
+            case 5:
                 return pagos.getTotal();
-            case 7:
+            case 6:
                 return pagos.getMontocuota();
-            case 8:
+            case 7:
                 return pagos.getTotal_cuotas();
-            case 9:
+            case 8:
                 //cuotas_pagadas = pagos.getPagado()/(pagos.getMontocuota());
                 return pagos.getCuotas_pagadas();
-            case 10:
+            case 9:
                 return pagos.getPagado();
-            case 11:
+            case 10:
                 return pagos.getSaldo();
-            case 12:
+            case 11:
                 return pagos.getVencimiento();
-            case 13:
+            case 12:
                 return pagos.getEstado();
             default:
                 return null;

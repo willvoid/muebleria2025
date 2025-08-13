@@ -103,9 +103,15 @@ public class PagosController implements ActionListener , KeyListener {
             }
         });
         gui.txt_idpagos.setVisible(false);
+        gui.txt_total_cuotas.setVisible(false);
         habilitarCampos(false);
         habilitarBoton(false);
+        gui.txt_vencimiento.setVisible(false);
+        gui.btn_calendar.setVisible(false);
+        gui.txt_abono.setEnabled(false);
         Conexion conectar = new Conexion();//Conexion a la BD
+        gui.btn_eliminar.setVisible(false);
+        gui.btn_eliminar.setEnabled(false);
         conec = conectar.conectarBD();
         listar("");
     }
@@ -121,7 +127,7 @@ public class PagosController implements ActionListener , KeyListener {
         gui.tabla.setModel(modelo);
         
         // Asignar el renderizador personalizado a la columna "ESTADO" (índice 10)
-        gui.tabla.getColumnModel().getColumn(13).setCellRenderer(new EstadoCellRenderer());
+        gui.tabla.getColumnModel().getColumn(12).setCellRenderer(new EstadoCellRenderer());
         
         gui.tabla.updateUI();
     }
@@ -136,38 +142,12 @@ public class PagosController implements ActionListener , KeyListener {
         }
         
         if (e.getSource()== gui.btn_ticket){
-            System.out.println("Generar Ticket");
-            VentasCrudImpl dao = new VentasCrudImpl();
-            // Obtener el número actual de la secuencia
-            Integer numeroActual = Integer.valueOf(gui.txt_idventa.getText());
-            //Integer venta_id_int = numeroActual;
-            try {
-                //String venta_id = gui.txt_factura.getText();
-                System.out.println(numeroActual);
-                Map<String, Object> parameters = new HashMap<>();
-                parameters.put("SUBREPORT_DIR", "C:/reportes/");
-                parameters.put("venta_id", numeroActual); 
-                JasperReport report = JasperCompileManager.compileReport(
-                           "C:\\reportes\\ticket_mueble_cuotas.jrxml");
-                JasperPrint print = JasperFillManager.fillReport(report, parameters, conec);
-                //JasperViewer.viewReport(print, false);
-                File subReporte = new File("C:\\reportes\\pagocuotas.jasper");
-                System.out.println("Subreporte existe? " + subReporte.exists());
-
-                JasperViewer viewer = new JasperViewer(print, false);
-                viewer.setAlwaysOnTop(true); //Muestra la ventana en frente
-                viewer.setVisible(true);
-            } catch (JRException ex) {
-                Logger.getLogger(GUIVentasF.class.getName()).log(Level.SEVERE, null, ex);
-                File subReporte = new File("C:\\reportes\\pagocuotas.jasper");
-                System.out.println("Subreporte existe? " + subReporte.exists());
-
-            }
+            generarTicket();
         }
         
         if (e.getSource() == gui.btn_cobrar) {
             String saldotxt = gui.txt_saldo.getText();
-            int saldo = Integer.parseInt(saldotxt);
+            Integer saldo = Integer.valueOf(saldotxt);
             if (saldo == 0){
                 JOptionPane.showMessageDialog(gui, "Esta cuota ya fue Pagada totalmente.");
                 return;
@@ -240,6 +220,11 @@ public class PagosController implements ActionListener , KeyListener {
                 return;
             }
             
+            if (abonoint <= 0){
+                JOptionPane.showMessageDialog(gui, "El Abono no puede ser Cero o Menor a Cero");
+                return;
+            }
+            
             
             if(gui.txt_vencimiento.getText().isEmpty()){
                 JOptionPane.showMessageDialog(gui, "Favor completar la Fecha de Vencimiento");
@@ -252,16 +237,20 @@ public class PagosController implements ActionListener , KeyListener {
             }
             System.out.println("Evento click de guardar");
             if (operacion == 'C') {
-                try {
-                    int montop = Integer.parseInt(gui.txt_pagado.getText());
-                    int idventa = Integer.parseInt(gui.txt_idventa.getText());
-                    crud.cobrar(getPagosForm());
-                    crudtr.insertar(getTransaccionForm());
-                    crud_dv.actualizarmontopagado(montop, idventa);
-                } catch (java.text.ParseException ex) {
-                    Logger.getLogger(PagosController.class.getName()).log(Level.SEVERE, null, ex);
-                } 
-                crud.actualizar_estados();
+                int ok = JOptionPane.showConfirmDialog(gui, "Verifique que el abono sea correcto.\n¿Confirma que los datos son correctos para cobrar esta cuota?", "Confirmar operacion", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+                if (ok == 0) {
+                     try {
+                        int montop = Integer.parseInt(gui.txt_pagado.getText());
+                        int idventa = Integer.parseInt(gui.txt_idventa.getText());
+                        crud.cobrar(getPagosForm());
+                        crudtr.insertar(getTransaccionForm());
+                        crud_dv.actualizarmontopagado(montop, idventa);
+                    } catch (java.text.ParseException ex) {
+                        Logger.getLogger(PagosController.class.getName()).log(Level.SEVERE, null, ex);
+                    } 
+                    crud.actualizar_estados();
+                    generarTicket();
+                }
             }
             
             System.out.println("Evento click de guardar");
@@ -329,15 +318,37 @@ public class PagosController implements ActionListener , KeyListener {
         gui.txt_idventa.setText("");
         gui.cbo_forma_pago.setSelectedIndex(0);
     }
+    
+    private void generarTicket(){
+        System.out.println("Generar Ticket");
+            // Obtener el número actual de la secuencia
+            Integer Id_pago = Integer.valueOf(gui.txt_idpagos.getText());
+            //Integer venta_id_int = numeroActual;
+            try {
+                Map<String, Object> parameters = new HashMap<>();
+                parameters.put("pago_id", Id_pago); 
+                JasperReport report = JasperCompileManager.compileReport(
+                           "C:\\reportes\\pagos.jrxml");
+                JasperPrint print = JasperFillManager.fillReport(report, parameters, conec);
+                //JasperViewer.viewReport(print, false);
+                JasperViewer viewer = new JasperViewer(print, false);
+                viewer.setAlwaysOnTop(true); //Muestra la ventana en frente
+                viewer.setVisible(true);
+            } catch (JRException ex) {
+                Logger.getLogger(GUIVentasF.class.getName()).log(Level.SEVERE, null, ex);
+
+            }
+    }
 
     // funcion o metodo encargado de recuperrar los valores de los JTextField en un objeto
     private Pagos getPagosForm() throws java.text.ParseException {
+                
         try {
             Date fecha = sdf.parse(gui.txt_vencimiento.getText()); // Convierte el texto a un Date
             pagos.setVencimiento(fecha); // Establece la fecha como un objeto Date
         } catch (ParseException e) {
             JOptionPane.showMessageDialog(null, "Formato de fecha inválido. Usa el formato dd/MM/yyyy", "Error", JOptionPane.ERROR_MESSAGE);
-            return null; // O maneja el error según lo necesario
+            return null;
         }
         
         pagos.setMontocuota(Integer.valueOf(gui.txt_montoc.getText()));
@@ -359,6 +370,7 @@ public class PagosController implements ActionListener , KeyListener {
         gui.txt_total.setText(item.getTotal().toString());
         gui.txt_saldo.setText(item.getSaldo().toString());
         gui.txt_cuotas_pagadas.setText(item.getCuotas_pagadas().toString());
+        gui.txt_total_cuotas.setText(item.getTotal_cuotas().toString());
         // Convierte la fecha a String en formato dd/MM/yyyy antes de asignarla al JTextField
         if (item.getVencimiento() != null) {
             java.util.Date fecha = new java.util.Date(item.getVencimiento().getTime()); // Convertir de java.sql.Date a java.util.Date

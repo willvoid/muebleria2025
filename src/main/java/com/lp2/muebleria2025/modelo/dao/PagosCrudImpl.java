@@ -111,6 +111,7 @@ public class PagosCrudImpl implements Crud<Pagos> {
 "                                SET estado = CASE\n" +
 "				 WHEN estado = 'PAGADO' THEN estado -- Si ya está pagado no actualiza\n" +
 "                                WHEN pagado = total THEN 'PAGADO'\n" +
+"                                WHEN saldo = 0 THEN 'PAGADO'\n " +
 "				 WHEN vencimiento < CURRENT_DATE THEN 'ATRASADO'\n" +
 "				 WHEN vencimiento = CURRENT_DATE THEN 'COBRAR HOY'\n" +
 "                                WHEN vencimiento > CURRENT_DATE THEN 'AL DIA'\n" +
@@ -197,10 +198,12 @@ public void cobrar(Pagos obj) {
         ArrayList<Pagos> lista = new ArrayList<>();
         try {
 //            String sql = "select * from producto where nombre ilike ? order by nombre asc";
-String sql ="select pa.producto,idpagos, cl.nombre, cl.telefono, cl.ruc, pa.idcliente, pa.idventa, montocuota, pagado, pa.total, vencimiento, saldo, estado, pa.total_cuotas, pa.cuotas_pagadas from pagos pa\n" +
-            "inner join cliente cl\n" +
-            "on pa.idcliente = cl.id\n" +
-            "where cl.ruc ||' '|| cl.nombre ilike ? or pa.producto ilike ? order by idpagos desc";     
+String sql ="SELECT pa.producto, idpagos, cl.nombre, cl.telefono, cl.ruc, pa.idcliente, pa.idventa, montocuota, pagado, pa.total, vencimiento, saldo, estado, pa.total_cuotas, pa.cuotas_pagadas " +
+             "FROM pagos pa " +
+             "INNER JOIN cliente cl ON pa.idcliente = cl.id " +
+             "WHERE (cl.ruc || ' ' || cl.nombre ILIKE ? OR pa.producto ILIKE ?) " +
+             "AND (estado != 'PAGADO' OR (estado = 'PAGADO' AND vencimiento = CURRENT_DATE)) " +
+             "ORDER BY idpagos DESC";     
 sentencia = conec.prepareStatement(sql);
             sentencia.setString(1, "%" + textoBuscado + "%");
             sentencia.setString(2, "%" + textoBuscado + "%");

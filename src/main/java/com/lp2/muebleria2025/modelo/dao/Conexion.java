@@ -13,7 +13,7 @@ import javax.swing.JOptionPane;
 
 public class Conexion {
 
-    String url = "jdbc:postgresql://localhost:5432/mueble2025";
+    String url = "jdbc:postgresql://localhost:5433/mueble2025";
     String usuario = "postgres";
     String password = "123";
     //GUILogin guilogin = new GUILogin();

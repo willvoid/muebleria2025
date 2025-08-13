@@ -65,6 +65,8 @@ public class DetallesVentasController implements ActionListener , KeyListener {
     private String num_venta;
     private char operacion;
     private int num_productos = 0;
+    private Integer cantidad_anterior;
+    private Integer id_del_producto;
     DetalleVentas d_ventas = new DetalleVentas();
     
     public int IdAnt = 0;
@@ -195,7 +197,7 @@ public class DetallesVentasController implements ActionListener , KeyListener {
         operacion = 'N';
         
         
-        gui.txt_precio_venta.setEnabled(false);
+        gui.txt_precio_venta.setEnabled(true);
         gui.txt_fecha.setEnabled(false);
         llenarJList(gui.jList1, "");
         gui.txt_precio_descuento.setVisible(false);
@@ -263,10 +265,16 @@ public class DetallesVentasController implements ActionListener , KeyListener {
                 if (ok == 0) {
                     operacion = 'E';
                     //crud.actualizar((DetalleVentas) modelo.getDetalleVentasByRow(fila));
+                    Integer idProductoo = Integer.valueOf(gui.txt_idproducto.getText());
+                    id_del_producto = idProductoo;
+                    Integer cantAnterior = Integer.valueOf(gui.txt_cantidad_de_venta.getText());
+                    cantidad_anterior = cantAnterior;
+                    sumarStock(cantidad_anterior, id_del_producto);
                     listar(num_venta);
                     habilitarCampos(true);
                     habilitarBoton(true);
                     gui.txt_descripcion.requestFocus();
+                    actualizarProductoPorName(gui.txt_descripcion.getText());
                 }
             } else {
                 JOptionPane.showMessageDialog(gui, "Debe seleccionar una fila");
@@ -301,9 +309,18 @@ public class DetallesVentasController implements ActionListener , KeyListener {
         if (e.getSource() == gui.btn_cancelar) {
             //habilitarCampos(false);
             //habilitarBoton(false);
-            gui.jList1.setVisible(false);
-            limpiar();
-            operacion = 'N';
+            if (operacion== 'E'){
+                restarStock(cantidad_anterior, id_del_producto);
+                gui.jList1.setVisible(false);
+                limpiar();
+                operacion = 'N';
+                cantidad_anterior = null;
+                id_del_producto = null;
+            }else{
+                gui.jList1.setVisible(false);
+                limpiar();
+                operacion = 'N';
+            }
         }
         
         
@@ -341,7 +358,6 @@ public class DetallesVentasController implements ActionListener , KeyListener {
                 try {
                     Integer idProductoo = Integer.valueOf(gui.txt_idproducto.getText());
                     Integer cantAnterior = Integer.valueOf(gui.txt_cantidad_de_venta.getText());
-                    sumarStock(cantAnterior, idProductoo);
                     crud.actualizar(getDetalleVentasForm());
                     restarStock(cantAnterior, idProductoo);
                 } catch (java.text.ParseException ex) {

@@ -100,17 +100,17 @@ public class DetalleVentasCrudImpl implements Crud<DetalleVentas> {
         
         public void actualizar_cuotass(DetalleVentas obj) {
             try {
-                String sql = "update detalle_ventas set producto_id=?,cantidad=?,precio_unitario=?,subtotal=?,descripcion=?,montocuotas=?,nro_cuotas=?,montopagado=? where id_detalle=?";
+                String sql = "update detalle_ventas set idproducto=?,cantidad=?,precio_unitario=?,subtotal=?,descripcion=? where id_detalle=?";
                 sentencia = conec.prepareStatement(sql);
                 sentencia.setInt(1, obj.getIdproducto()); 
                 sentencia.setInt(2, obj.getCantidad());
                 sentencia.setInt(3, obj.getPrecio());
                 sentencia.setInt(4, obj.getSubtotal());
                 sentencia.setString(5,obj.getProducto());
-                sentencia.setInt(6,obj.getMontoCuotas());
-                sentencia.setInt(7,obj.getNro_cuotas());
-                sentencia.setInt(8,obj.getMontoPagado());
-                sentencia.setInt(9, obj.getId());
+                //sentencia.setInt(6,obj.getMontoCuotas());
+                //sentencia.setInt(7,obj.getNro_cuotas());
+                //sentencia.setInt(8,obj.getMontoPagado());
+                sentencia.setInt(6, obj.getId());
                 //sentencia.setInt(10,obj.getInteres());
                 sentencia.executeUpdate();
             } catch (SQLException ex) {
